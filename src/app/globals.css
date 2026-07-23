@@ -1,0 +1,130 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Warm PNW Theme: Forest, Wood, and Sunset */
+    --background: 30 20% 98%;
+    --foreground: 20 10% 10%;
+    
+    --card: 30 20% 98%; /* Match background almond for a softer feel */
+    --card-foreground: 20 10% 10%;
+    
+    --popover: 30 20% 98%;
+    --popover-foreground: 20 10% 10%;
+    
+    --primary: 154 35% 20%; /* Dark Forest Green */
+    --primary-foreground: 30 20% 98%;
+    
+    --secondary: 35 25% 92%; /* Soft Almond */
+    --secondary-foreground: 154 35% 20%;
+    
+    --muted: 35 15% 90%;
+    --muted-foreground: 20 10% 25%;
+    
+    --accent: 32 95% 44%; /* Deepened Golden Amber */
+    --accent-foreground: 30 20% 98%;
+    
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    
+    --border: 35 20% 85%;
+    --input: 35 20% 85%;
+    --ring: 154 35% 20%;
+    
+    --radius: 0.75rem;
+  }
+
+  [data-theme='dark-green'] {
+    --primary: 154 35% 20%;
+    --primary-foreground: 30 20% 98%;
+  }
+
+  [data-theme='mint-green'] {
+    --primary: 160 84% 39%; /* Mint Green */
+    --primary-foreground: 160 84% 5%;
+  }
+
+  [data-theme='lime-green'] {
+    --primary: 75 100% 40%; /* Lime Green */
+    --primary-foreground: 75 100% 5%; /* Dark for contrast */
+    --accent: 32 95% 44%;
+  }
+
+  .dark {
+    --background: 20 10% 5%;
+    --foreground: 30 20% 98%;
+    
+    --card: 20 10% 8%;
+    --card-foreground: 30 20% 98%;
+    
+    --popover: 20 10% 8%;
+    --popover-foreground: 30 20% 98%;
+    
+    --primary: 154 35% 75%; /* Much lighter green in dark mode for accessibility as text */
+    --primary-foreground: 20 10% 5%;
+    
+    --secondary: 154 35% 20%;
+    --secondary-foreground: 30 20% 98%;
+    
+    --muted: 154 35% 20%;
+    --muted-foreground: 154 10% 80%;
+    
+    --accent: 38 92% 50%;
+    --accent-foreground: 20 10% 5%;
+    
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 30 20% 98%;
+    
+    --border: 154 35% 20%;
+    --input: 154 35% 20%;
+    --ring: 38 92% 50%;
+  }
+
+  [data-theme='dark-green'].dark {
+    --primary: 154 45% 40%;
+    --primary-foreground: 30 20% 98%;
+    --background: 154 35% 5%;
+    --card: 154 35% 8%;
+    --card-foreground: 30 20% 98%;
+    --border: 154 35% 15%;
+    --ring: 154 45% 40%;
+    --accent: 32 95% 44%;
+    --accent-foreground: 30 20% 98%;
+  }
+
+  [data-theme='mint-green'].dark {
+    --primary: 160 84% 60%;
+    --ring: 160 84% 60%;
+    --accent: 38 92% 50%;
+  }
+
+  [data-theme='lime-green'].dark {
+    --primary: 75 90% 60%;
+    --primary-foreground: 20 10% 5%;
+    --background: 75 50% 5%;
+    --card: 75 50% 8%;
+    --accent: 32 95% 44%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground selection:bg-accent/30 antialiased;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply tracking-tight font-bold text-primary;
+  }
+}
+
+.glass-card {
+  @apply bg-white/90 backdrop-blur-sm border border-primary/10 shadow-xl;
+}
+
+.hero-gradient {
+  background: linear-gradient(to bottom, rgba(0,0,0,0.4), rgba(0,0,0,0.8));
+}

@@ -1,11 +1,21 @@
-<div align="center">
+# LifeCreatesArt
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+Photography and fine art gallery showcasing the resilience and creative journey of Tina Croft Barnes.
 
-  <h1>Built with AI Studio</h2>
+## Documentation
+The core project documentation is maintained in the **[/Docs/](./Docs/)** directory. 
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+- **[Quick Start Guide](./Docs/README.md)**
+- **[Architecture & Structure](./Docs/STRUCTURE.md)**
+- **[Project Roadmap](./Docs/INDEX_ROADMAP.md)**
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+## Development
+To start the local development server:
+```bash
+npm run dev
+```
 
-</div>
+For AI flow development:
+```bash
+npm run genkit:dev
+```

@@ -1,0 +1,10 @@
+{
+  "name": "LifeCreatesArt",
+  "description": "Photo Gallery For Tina Croft Barnes",
+  "requestFramePermissions": [
+    "allow-modals"
+  ],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}
