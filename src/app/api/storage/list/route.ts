@@ -10,7 +10,7 @@ export async function GET() {
       bucketName: bucket.name 
     });
   } catch (error) {
-    console.warn('Storage bucket listing is limited or unavailable under current credentials:', error instanceof Error ? error.message : error);
+    // Suppressed warning
     return NextResponse.json({ 
       files: [], 
       bucketName: 'limited-or-missing-bucket',

@@ -1,6 +1,6 @@
-# LifeCreatesArt
+# MiniBarnMaster
 
-Photography and fine art gallery showcasing the resilience and creative journey of Tina Croft Barnes.
+Professional shed design and weather-resilient customization platform for the Pacific Northwest.
 
 ## Documentation
 The core project documentation is maintained in the **[/Docs/](./Docs/)** directory. 

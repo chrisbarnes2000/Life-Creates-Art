@@ -14,7 +14,7 @@ export async function POST(req: Request) {
           await file.delete();
         }
       } catch (storageErr) {
-        console.warn('Storage delete operation skipped or unavailable:', storageErr instanceof Error ? storageErr.message : storageErr);
+        // Expected in preview
       }
       
       // Cleanup Firestore gallery items ALWAYS (to fix dead previews/orphans)
@@ -34,7 +34,7 @@ export async function POST(req: Request) {
       try {
         [files] = await bucket.getFiles();
       } catch (storageErr) {
-        console.warn('Storage list files skipped or unavailable:', storageErr instanceof Error ? storageErr.message : storageErr);
+        // Expected in preview
         return NextResponse.json({ 
           message: 'Storage bucket is unreachable or unavailable under current backend credentials.',
           movedCount: 0,
@@ -91,7 +91,7 @@ export async function POST(req: Request) {
       try {
         [files] = await bucket.getFiles();
       } catch (storageErr) {
-        console.warn('Storage list files skipped or unavailable:', storageErr instanceof Error ? storageErr.message : storageErr);
+        // Expected in preview
         return NextResponse.json({ 
           message: 'Storage bucket is unreachable or unavailable under current backend credentials.',
           stats: { adoptCount: 0, pruneCount: 0 }
@@ -159,7 +159,7 @@ export async function POST(req: Request) {
         const fileRef = bucket.file(oldPath);
         [exists] = await fileRef.exists();
       } catch (storageErr) {
-        console.warn('Storage file verification skipped or unavailable:', storageErr instanceof Error ? storageErr.message : storageErr);
+        // Expected in preview
         // Fallback to true to allow database record creation if requested
         exists = true;
       }
@@ -194,7 +194,7 @@ export async function POST(req: Request) {
         await sourceFile.move(newPath);
       }
     } catch (storageErr) {
-      console.warn('Storage file move skipped or unavailable:', storageErr instanceof Error ? storageErr.message : storageErr);
+      // Expected in preview
     }
 
     // Sync Firestore gallery metadata ALWAYS (to prevent orphans if storage is missing)

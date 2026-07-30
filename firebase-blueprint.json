@@ -4,71 +4,192 @@
       "title": "Customer",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "firstName": { "type": "string" },
-        "lastName": { "type": "string" },
-        "email": { "type": "string", "format": "email" },
-        "phone": { "type": "string" },
-        "address": { "type": "string" }
+        "id": {
+          "type": "string"
+        },
+        "firstName": {
+          "type": "string"
+        },
+        "lastName": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "address": {
+          "type": "string"
+        }
       },
-      "required": ["id", "firstName", "lastName", "email"]
+      "required": [
+        "id",
+        "firstName",
+        "lastName",
+        "email"
+      ]
     },
     "ConsultationRequest": {
       "title": "ConsultationRequest",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "customerId": { "type": "string" },
-        "name": { "type": "string" },
-        "email": { "type": "string" },
-        "phone": { "type": "string" },
-        "status": { "type": "string" },
-        "requestDate": { "type": "string", "format": "date-time" }
+        "id": {
+          "type": "string"
+        },
+        "customerId": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "email": {
+          "type": "string"
+        },
+        "phone": {
+          "type": "string"
+        },
+        "status": {
+          "type": "string"
+        },
+        "requestDate": {
+          "type": "string",
+          "format": "date-time"
+        }
       },
-      "required": ["customerId", "name", "email", "status"]
+      "required": [
+        "customerId",
+        "name",
+        "email",
+        "status"
+      ]
     },
     "Testimonial": {
       "title": "Testimonial",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "author": { "type": "string" },
-        "location": { "type": "string" },
-        "text": { "type": "string" },
-        "rating": { "type": "number" },
-        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
-        "category": { "type": "string", "description": "e.g., Shed, Dome, Commercial" },
-        "date": { "type": "string", "format": "date-time" }
+        "id": {
+          "type": "string"
+        },
+        "author": {
+          "type": "string"
+        },
+        "location": {
+          "type": "string"
+        },
+        "text": {
+          "type": "string"
+        },
+        "rating": {
+          "type": "number"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "pending",
+            "approved",
+            "rejected"
+          ]
+        },
+        "category": {
+          "type": "string",
+          "description": "e.g., Shed, Dome, Commercial"
+        },
+        "date": {
+          "type": "string",
+          "format": "date-time"
+        }
       },
-      "required": ["author", "text", "rating", "status"]
+      "required": [
+        "author",
+        "text",
+        "rating",
+        "status"
+      ]
     },
     "GalleryItem": {
       "title": "GalleryItem",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "imageUrl": { "type": "string" },
-        "description": { "type": "string" },
-        "hoverText": { "type": "string" },
-        "album": { "type": "string" },
-        "subAlbum": { "type": "string" },
-        "uploadDate": { "type": "string", "format": "date-time" }
+        "id": {
+          "type": "string"
+        },
+        "imageUrl": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "hoverText": {
+          "type": "string"
+        },
+        "album": {
+          "type": "string"
+        },
+        "subAlbum": {
+          "type": "string"
+        },
+        "uploadDate": {
+          "type": "string",
+          "format": "date-time"
+        }
       },
-      "required": ["imageUrl", "description"]
+      "required": [
+        "imageUrl",
+        "description"
+      ]
     },
     "AppConfig": {
       "title": "AppConfig",
       "type": "object",
       "properties": {
-        "imageUrl": { "type": "string" },
-        "testimonialsEnabled": { "type": "boolean" },
-        "lastUpdated": { "type": "string", "format": "date-time" }
+        "imageUrl": {
+          "type": "string"
+        },
+        "testimonialsEnabled": {
+          "type": "boolean"
+        },
+        "lastUpdated": {
+          "type": "string",
+          "format": "date-time"
+        }
       },
-      "required": ["lastUpdated"]
+      "required": [
+        "lastUpdated"
+      ]
+    },
+    "ShedDesign": {
+      "title": "ShedDesign",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "style": {
+          "type": "string"
+        },
+        "size": {
+          "type": "string"
+        },
+        "siding": {
+          "type": "string"
+        },
+        "roof": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
     }
   },
   "auth": {
-    "providers": ["password", "anonymous"]
+    "providers": [
+      "password",
+      "anonymous"
+    ]
   },
   "firestore": {
     "structure": [
@@ -94,6 +215,12 @@
         "path": "/appConfig/{configId}",
         "definition": {
           "entityName": "AppConfig"
+        }
+      },
+      {
+        "path": "/customers/{userId}/shedDesigns/{designId}",
+        "definition": {
+          "entityName": "ShedDesign"
         }
       }
     ]

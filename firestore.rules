@@ -1,13 +1,54 @@
-
-/**
- * This ruleset enforces a strict user-ownership security model for the MiniBarnMaster application.
- * Updated to explicitly permit public read access for testimonials, gallery, and site configuration.
- */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+  
+    // Global primitives
+    function isSignedIn() { return request.auth != null; }
+    function isAdmin() { 
+      return isSignedIn() && (
+        (request.auth.token.email != null && request.auth.token.email == 'chris.barnes.2000@me.com') || 
+        (request.auth.token.admin == true)
+      ); 
+    }
+    function isOwner(userId) { return isSignedIn() && request.auth.uid == userId; }
+    
+    // Global safety net
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
+    }
+    
+    match /gallery/{imageId} {
+      // Public can view gallery
+      allow read: if true;
+      // Admin can manage gallery
+      allow write: if isAdmin();
+    }
+    
+    match /allTestimonials/{testimonialId} {
+      // Public can view testimonials
+      allow read: if true;
+      // Public can submit testimonials, admin can edit/delete
+      // Note: A real app should validate the incoming data for create
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+    
+    match /allConsultationRequests/{requestId} {
+      // Admin can read all requests
+      // Public can create requests
+      allow read: if isAdmin();
+      allow create: if true;
+      allow update, delete: if isAdmin();
+    }
+    
+    match /appConfig/{configId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Customer specific data (like shedDesigns)
+    match /customers/{userId}/{document=**} {
+      allow read, write: if isOwner(userId) || isAdmin();
     }
   }
 }

@@ -121,7 +121,7 @@ export default function Home() {
                 Life Creates Art
               </h1>
               <p className="mx-auto max-w-2xl text-lg sm:text-xl md:text-2xl text-gray-100 drop-shadow-lg opacity-90">
-                Hi, I'm Tina. Through the challenges of raising five children alone, escaping abuse and a controlling past, I've found my voice in creativity. This gallery is my journey of resilience, captured in every frame.
+                Hi, I'm Tina. As an entrepreneur and mother of five, I have built a life rooted in independence and resilience. My career has taught me composure and decisive action—skills that now fuel my creative journey. This gallery is a reflection of my drive to thrive.
               </p>
               <div className="pt-4 flex items-center justify-center gap-4">
                 <a href="#gallery" className="inline-flex h-12 items-center justify-center rounded-full bg-accent px-8 text-sm font-bold text-accent-foreground shadow-lg transition-transform hover:scale-105 hover:bg-accent/90 relative z-20">

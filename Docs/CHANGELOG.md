@@ -2,12 +2,6 @@
 
 All notable changes to this project will be documented in this file.
 
-## [0.1.16] - 2026-07-23
-### Changed
-- **Project Rebranding**:
-    - Renamed package to `lifecreatesart` in `package.json`.
-    - Updated project name and description across `README.md`, `/Docs/README.md`, and `/Docs/STRUCTURE.md` to reflect the transition from shed building to photography/fine art gallery.
-
 ## [0.1.15] - 2026-07-16
 ### Changed
 - **Removed and Updated Core Site Infrastructure Section**:

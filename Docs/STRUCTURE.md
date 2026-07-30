@@ -1,7 +1,7 @@
 # Project Structure
 
 ## Overview
-LifeCreatesArt is a photography and fine art gallery platform showcasing the creative journey of Tina Croft Barnes. It leverages Next.js, Firebase, and AI to provide an immersive experience.
+MiniBarnMaster is a professional shed design and customization platform built for the Pacific Northwest climate. It leverages Next.js, Firebase, and AI (Genkit/Gemini) to provide interactive designs and weather-resilient recommendations.
 
 ## Core Directories
 - `/src/app`: Next.js App Router pages and API routes.

@@ -235,7 +235,7 @@ export function GalleryTab({
                           </div>
                           <Input
                             type="file"
-                            accept="image/*"
+                            accept="image/*,.heic,.heif"
                             onChange={(e) => handleAssetUpload(asset.id, e.target.files?.[0] || null)}
                             disabled={!!uploading}
                             className="h-8 text-[9px] bg-transparent border-primary/10 dark:border-primary/80"
@@ -270,7 +270,7 @@ export function GalleryTab({
                       <Input
                         id="gallery-file-input"
                         type="file"
-                        accept="image/*"
+                        accept="image/*,.heic,.heif"
                         multiple
                         onChange={(e) => setSelectedFiles(Array.from(e.target.files || []))}
                         className="cursor-pointer bg-transparent border-primary/20 h-12"

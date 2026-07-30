@@ -1,6 +1,6 @@
-# LifeCreatesArt Documentation
+# MiniBarnMaster Documentation
 
-Welcome to the internal documentation for **LifeCreatesArt**, a photography and fine art gallery platform.
+Welcome to the internal documentation for **MiniBarnMaster**, a high-quality shed design and weather-resilience platform.
 
 ## Documentation Navigation
 - **[STRUCTURE.md](./STRUCTURE.md)**: Overview of the codebase and architecture.

@@ -28,7 +28,6 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Loader2, Plus, Trash2, GitMerge, Mail, Phone, Calendar, User, FileText } from 'lucide-react';
 import { StatusEditor } from '@/components/status-editor';
-import { ConsultationMap } from '@/components/consultation-map';
 import { ManualRequestForm } from '@/components/manual-request-form';
 
 interface MergeDialogProps {
@@ -149,8 +148,6 @@ export function InquiriesTab({
 
   return (
     <div className="space-y-8">
-      <ConsultationMap requests={requests} />
-      
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <div className="space-y-1">

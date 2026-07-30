@@ -438,33 +438,11 @@ export default function AdminPage() {
           )}
         </div>
 
-        <Tabs defaultValue="inquiries" className="w-full">
+        <Tabs defaultValue="settings" className="w-full">
           <TabsList className="flex flex-wrap h-auto w-full mb-8 gap-2 bg-primary/10 dark:bg-primary/20 p-2 rounded-xl border border-primary/20">
-            <TabsTrigger className="flex-1 min-w-[120px] rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-bold" value="inquiries"><Inbox className="mr-2 h-4 w-4" /> Operations</TabsTrigger>
             <TabsTrigger className="flex-1 min-w-[120px] rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-bold" value="gallery"><ImageIcon className="mr-2 h-4 w-4" /> Archive & Media</TabsTrigger>
-            <TabsTrigger className="flex-1 min-w-[120px] rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-bold" value="settings"><SettingsIcon className="mr-2 h-4 w-4" /> Config</TabsTrigger>
+            <TabsTrigger className="flex-1 min-w-[120px] rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-bold" value="settings"><SettingsIcon className="mr-2 h-4 w-4" /> Configuration & Operations</TabsTrigger>
           </TabsList>
-
-          <TabsContent value="inquiries">
-            <InquiriesTab 
-              requests={requests || []} 
-              isLoadingReqs={isLoadingReqs} 
-              handleDeleteAllInquiries={handleDeleteAllInquiries}
-              handleDeleteInquiry={handleDeleteInquiry}
-              handleMergeInquiries={handleMergeInquiries}
-            />
-            <div className="mt-12">
-              <Separator className="mb-8" />
-              <h2 className="text-xl font-bold mb-6 flex items-center gap-2">
-                <MessageSquare className="h-5 w-5 text-primary" /> Public Testimonials Management
-              </h2>
-              <TestimonialsTab
-                liveTestimonials={liveTestimonials || []} isLoadingTestimonials={isLoadingTestimonials}
-                handleUpdateTestimonial={handleUpdateTestimonial} handleSetTestimonialCategory={handleSetTestimonialCategory}
-                handleDeleteTestimonial={handleDeleteTestimonial}
-              />
-            </div>
-          </TabsContent>
 
           <TabsContent value="gallery">
             <div className="space-y-8">
@@ -493,11 +471,36 @@ export default function AdminPage() {
             </div>
           </TabsContent>
 
-          <TabsContent value="settings">
+          <TabsContent value="settings" className="space-y-12">
             <SettingsTab
               config={config} setConfig={setConfig} handleSaveSettings={handleSaveSettings}
               testimonialsConfig={testimonialsConfig} handleToggleTestimonials={handleToggleTestimonials}
             />
+            
+            <div className="space-y-8">
+              <h2 className="text-2xl font-bold flex items-center gap-2 text-primary border-b pb-4">
+                <Inbox className="h-6 w-6" /> Customer Operations
+              </h2>
+              
+              <InquiriesTab 
+                requests={requests || []} 
+                isLoadingReqs={isLoadingReqs} 
+                handleDeleteAllInquiries={handleDeleteAllInquiries}
+                handleDeleteInquiry={handleDeleteInquiry}
+                handleMergeInquiries={handleMergeInquiries}
+              />
+              
+              <div className="mt-12 pt-8 border-t">
+                <h2 className="text-2xl font-bold flex items-center gap-2 text-primary mb-6">
+                  <MessageSquare className="h-6 w-6" /> Public Testimonials Management
+                </h2>
+                <TestimonialsTab
+                  liveTestimonials={liveTestimonials || []} isLoadingTestimonials={isLoadingTestimonials}
+                  handleUpdateTestimonial={handleUpdateTestimonial} handleSetTestimonialCategory={handleSetTestimonialCategory}
+                  handleDeleteTestimonial={handleDeleteTestimonial}
+                />
+              </div>
+            </div>
           </TabsContent>
         </Tabs>
       </div>
