@@ -31,6 +31,7 @@ export type GoogleAlbum = {
   coverImage?: string;
   memoryUrl?: string;
   hidden?: boolean;
+  price?: string;
 };
 
 export type RoofStyle = {

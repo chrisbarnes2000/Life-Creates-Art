@@ -99,30 +99,34 @@ export default function AdminPage() {
 
   const [config, setConfig] = React.useState({
     theme: 'dark-green',
-    limits: { minWidth: 8, minLength: 8, maxWidth: 12, maxLength: 20 },
     watermarkEnabled: false,
-    watermarkText: '© Tina Barnes',
-    pricing: {
-      shedBase: 25, doorSingle: 200, doorDouble: 350, roofGable: 1.0, roofGambrel: 1.2,
-      windowPrice: 150, ventPrice: 75, gutterPrice: 250, paintPrice: 500,
-      rampPrice: 250, skirtPrice: 400,
-      domeBase: 50, freq2v: 1.0, freq3v: 1.2, freq4v: 1.5, coverVinyl: 1.0, coverPoly: 1.8
-    }
+    watermarkText: '© Tina Barnes'
   });
 
   React.useEffect(() => {
-    const stored = localStorage.getItem('minibarn_master_config');
-    if (stored) setConfig(JSON.parse(stored));
+    const stored = localStorage.getItem('lifecreatesart_config') || localStorage.getItem('minibarn_master_config');
+    if (stored) {
+      try {
+        const parsed = JSON.parse(stored);
+        setConfig({
+          theme: parsed.theme || 'dark-green',
+          watermarkEnabled: typeof parsed.watermarkEnabled === 'boolean' ? parsed.watermarkEnabled : false,
+          watermarkText: parsed.watermarkText || '© Tina Barnes'
+        });
+      } catch (e) {
+        console.error('Error parsing stored config:', e);
+      }
+    }
   }, []);
 
   const handleSaveSettings = async () => {
-    localStorage.setItem('minibarn_master_config', JSON.stringify(config));
+    localStorage.setItem('lifecreatesart_config', JSON.stringify(config));
     
     if (firestore) {
       await setDoc(doc(firestore, 'appConfig', 'siteSettings'), { ...config, lastUpdated: serverTimestamp() }, { merge: true });
     }
     
-    toast({ title: 'Settings Saved', description: 'Pricing, size limits, and watermark settings updated.' });
+    toast({ title: 'Settings Saved', description: 'Watermark and portfolio configuration settings updated.' });
   };
 
   const handleToggleTestimonials = (enabled: boolean) => {

@@ -3,7 +3,7 @@
   "appId": "1:687808454569:web:97ae480041887fb325eeb8",
   "apiKey": "AIzaSyCjzQBMzYNlJ8Q27vdLlzpaUBPRD4-YoM4",
   "authDomain": "life-creates-art.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-lifecreatesart-adbc281d-d7ef-46e1-ba2b-781f9424c985",
+  "firestoreDatabaseId": "default",
   "storageBucket": "life-creates-art.firebasestorage.app",
   "messagingSenderId": "687808454569",
   "measurementId": "G-PB5EPYW715",

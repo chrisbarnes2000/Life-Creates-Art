@@ -30,6 +30,14 @@
 **Standard fixes:**
 - Generate keys with UUIDs or stable identifiers from backend.
 
+## Sandbox Environment window.confirm Limitation
+
+**Root cause:** Native browser prompts like `window.confirm`, `window.alert`, or `window.prompt` fail or block indefinitely inside sandboxed iframe previews.
+
+**Standard fixes:**
+- Replace all native `confirm` prompt calls with state-controlled custom dialogs (e.g. Radix `AlertDialog` or `Dialog` primitives).
+- Use callback-based async closures to defer actions until the user selects "Confirm" on the custom modal.
+
 ## Response Protocol
 
 When error detected:

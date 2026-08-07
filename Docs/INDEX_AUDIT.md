@@ -1,6 +1,6 @@
 # Project Audit Index
 
-This index tracks all logic and structural audits for the MiniBarnMaster project.
+This index tracks all logic and structural audits for the LifeCreatesArt project.
 
 ## Active Audits
 - *None currently active.*

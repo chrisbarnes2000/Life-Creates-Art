@@ -140,11 +140,18 @@ function GoogleAlbumCard({
             </div>
           )}
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 flex flex-col justify-end">
-            <div className="flex items-center space-x-2">
-              <FolderOpen className="h-5 w-5 text-zinc-300" />
-              <p className="text-lg font-bold text-white tracking-tight">
-                {album.name}
-              </p>
+            <div className="flex flex-col space-y-1">
+              <div className="flex items-center space-x-2">
+                <FolderOpen className="h-5 w-5 text-zinc-300" />
+                <p className="text-lg font-bold text-white tracking-tight">
+                  {album.name}
+                </p>
+              </div>
+              {album.price && (
+                <p className="text-xs text-accent font-black uppercase tracking-wider pl-7">
+                  Prints from ${album.price}
+                </p>
+              )}
             </div>
           </div>
         </div>
@@ -152,6 +159,28 @@ function GoogleAlbumCard({
     </Card>
   );
 }
+
+const formatDate = (dateValue: any) => {
+  if (!dateValue) return '';
+  let d: Date;
+  if (typeof dateValue.toDate === 'function') {
+    d = dateValue.toDate();
+  } else if (dateValue instanceof Date) {
+    d = dateValue;
+  } else if (dateValue.seconds) {
+    d = new Date(dateValue.seconds * 1000);
+  } else {
+    d = new Date(dateValue);
+  }
+  
+  if (isNaN(d.getTime())) return '';
+  
+  return d.toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric'
+  });
+};
 
 export function PhotoGallery() {
   const { firestore } = useFirebase();
@@ -182,6 +211,8 @@ export function PhotoGallery() {
   // Pagination State
   const [itemsPerPage, setItemsPerPage] = React.useState<number | 'all'>(25);
   const [currentPage, setCurrentPage] = React.useState(1);
+  const [sortBy, setSortBy] = React.useState<'uploadDate' | 'lastUpdated'>('uploadDate');
+  const [sortOrder, setSortOrder] = React.useState<'asc' | 'desc'>('desc');
 
   // Combine Firestore items with demo data as a fallback if Firestore is empty
   const displayItems = React.useMemo(() => {
@@ -268,10 +299,12 @@ export function PhotoGallery() {
   const renderWatermark = () => {
     if (!watermarkEnabled) return null;
     return (
-      <div className="absolute inset-0 flex items-center justify-center opacity-30 pointer-events-none">
-        <span className="text-white text-lg font-bold select-none whitespace-nowrap rotate-[-30deg]">
-          {watermarkText}
-        </span>
+      <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-20">
+        <div className="bg-black/75 dark:bg-black/85 backdrop-blur-md px-4 py-2 rounded-2xl border-2 border-white/50 shadow-2xl rotate-[-25deg]">
+          <span className="text-white text-sm sm:text-base font-black uppercase tracking-widest select-none whitespace-nowrap drop-shadow-md">
+            {watermarkText}
+          </span>
+        </div>
       </div>
     );
   };
@@ -341,24 +374,46 @@ export function PhotoGallery() {
 
   // Photos to render if a custom album is selected
   const activeCustomPhotos = React.useMemo(() => {
+    let items: GalleryItem[] = [];
     if (selectedAlbum?.type === 'custom') {
       if (selectedAlbum.name === 'All Photos') {
-        return standalonePhotos;
-      }
-      
-      let items = displayItems.filter(item => item.album === selectedAlbum.name);
-      
-      if (selectedAlbum.subAlbum) {
-        items = items.filter(item => item.subAlbum === selectedAlbum.subAlbum);
-      } else if (currentAlbumData?.subAlbums && currentAlbumData.subAlbums.length > 0) {
-          // If we have subalbums but none selected, maybe we show photos that HAVE NO subalbum
+        items = [...standalonePhotos];
+      } else {
+        items = displayItems.filter(item => item.album === selectedAlbum.name);
+        
+        if (selectedAlbum.subAlbum) {
+          items = items.filter(item => item.subAlbum === selectedAlbum.subAlbum);
+        } else if (currentAlbumData?.subAlbums && currentAlbumData.subAlbums.length > 0) {
+          // If we have subalbums but none selected, show photos that HAVE NO subalbum
           items = items.filter(item => !item.subAlbum);
+        }
       }
-      
-      return items;
+    } else {
+      return [];
     }
-    return [];
-  }, [displayItems, selectedAlbum, standalonePhotos, currentAlbumData]);
+
+    // Sort client-side based on sortBy and sortOrder
+    return [...items].sort((a: any, b: any) => {
+      const valA = a[sortBy];
+      const valB = b[sortBy];
+
+      const getMs = (val: any) => {
+        if (!val) return 0;
+        if (typeof val.toDate === 'function') return val.toDate().getTime();
+        if (val.seconds) return val.seconds * 1000;
+        return new Date(val).getTime() || 0;
+      };
+
+      const msA = getMs(valA);
+      const msB = getMs(valB);
+
+      if (sortOrder === 'desc') {
+        return msB - msA;
+      } else {
+        return msA - msB;
+      }
+    });
+  }, [displayItems, selectedAlbum, standalonePhotos, currentAlbumData, sortBy, sortOrder]);
 
   // Paginated View Items
   const paginatedPhotos = React.useMemo(() => {
@@ -440,58 +495,57 @@ export function PhotoGallery() {
                 <Button variant="outline" size="icon" onClick={handleShare} title="Copy Deep Link" className="h-8 w-8">
                   <Share2 className="h-4 w-4" />
                 </Button>
-                {selectedAlbum.type === 'google' && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    asChild
-                    className="hidden sm:flex h-8"
-                  >
-                    <a href={selectedAlbum.url} target="_blank" rel="noopener noreferrer">
-                      <ExternalLink className="mr-2 h-4 w-4" />
-                      Google
-                    </a>
-                  </Button>
-                )}
-                {selectedAlbum.type === 'google' && selectedAlbum.memoryUrl && (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    asChild
-                    className="hidden sm:flex h-8 border-amber-200 text-amber-700 hover:bg-amber-50"
-                  >
-                    <a href={selectedAlbum.memoryUrl} target="_blank" rel="noopener noreferrer">
-                      <ImageIcon2 className="mr-2 h-4 w-4" />
-                      Memories
-                    </a>
-                  </Button>
-                )}
               </div>
             </div>
 
-            {/* Pagination Controls */}
+            {/* Pagination & Sorting Controls */}
             <div className="flex flex-wrap items-center justify-between gap-4 mt-2">
-              <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground whitespace-nowrap">Show:</span>
-                <Select 
-                  value={itemsPerPage.toString()} 
-                  onValueChange={(v) => {
-                    setItemsPerPage(v === 'all' ? 'all' : parseInt(v));
-                    setCurrentPage(1);
-                  }}
-                >
-                  <SelectTrigger className="h-8 w-[80px] text-xs">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="10">10</SelectItem>
-                    <SelectItem value="25">25</SelectItem>
-                    <SelectItem value="50">50</SelectItem>
-                    <SelectItem value="100">100</SelectItem>
-                    <SelectItem value="200">200</SelectItem>
-                    <SelectItem value="all">All</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex flex-wrap items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">Show:</span>
+                  <Select 
+                    value={itemsPerPage.toString()} 
+                    onValueChange={(v) => {
+                      setItemsPerPage(v === 'all' ? 'all' : parseInt(v));
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="h-8 w-[80px] text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="10">10</SelectItem>
+                      <SelectItem value="25">25</SelectItem>
+                      <SelectItem value="50">50</SelectItem>
+                      <SelectItem value="100">100</SelectItem>
+                      <SelectItem value="200">200</SelectItem>
+                      <SelectItem value="all">All</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground whitespace-nowrap">Sort By:</span>
+                  <Select 
+                    value={`${sortBy}-${sortOrder}`} 
+                    onValueChange={(v) => {
+                      const [field, order] = v.split('-');
+                      setSortBy(field as 'uploadDate' | 'lastUpdated');
+                      setSortOrder(order as 'desc' | 'asc');
+                      setCurrentPage(1);
+                    }}
+                  >
+                    <SelectTrigger className="h-8 w-[160px] text-xs">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="uploadDate-desc">Upload Date (Newest)</SelectItem>
+                      <SelectItem value="uploadDate-asc">Upload Date (Oldest)</SelectItem>
+                      <SelectItem value="lastUpdated-desc">Modified Date (Newest)</SelectItem>
+                      <SelectItem value="lastUpdated-asc">Modified Date (Oldest)</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               {totalPages > 1 && (
@@ -681,57 +735,6 @@ export function PhotoGallery() {
       {/* --- Detail/Album Mode --- */}
       {selectedAlbum && (
         <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-          {selectedAlbum.type === 'google' && selectedAlbum.memoryUrl && (
-            <Card className="mb-10 overflow-hidden border-2 border-emerald-500/20 shadow-xl bg-gradient-to-br from-emerald-900 to-emerald-950 text-white group relative">
-              <div className="absolute inset-0 z-0 opacity-40 group-hover:opacity-60 transition-opacity duration-700">
-                {googlePhotos.length > 0 && (
-                  <Image 
-                    src={googlePhotos[0]} 
-                    alt="Background" 
-                    fill 
-                    className="object-cover blur-sm scale-105 group-hover:scale-100 transition-transform duration-1000"
-                    referrerPolicy="no-referrer"
-                  />
-                )}
-                <div className="absolute inset-0 bg-emerald-950/60" />
-              </div>
-              
-              <div className="relative z-10 p-8 flex flex-col items-center justify-center text-center space-y-6">
-                <div className="bg-white/10 p-4 rounded-full backdrop-blur-md border border-white/20 transform group-hover:scale-110 transition-transform duration-500">
-                  <ImageIcon2 className="h-10 w-10 text-emerald-400" />
-                </div>
-                
-                <div className="space-y-2">
-                  <h3 className="text-2xl font-black uppercase tracking-tighter sm:text-3xl">Interactive Highlights Reel</h3>
-                  <p className="text-emerald-100/80 max-w-md mx-auto text-sm font-medium">
-                    Experience a curated AI-powered slideshow of this project's top moments, delivered directly through Google Photos.
-                  </p>
-                </div>
-
-                <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm">
-                  <Button 
-                    size="lg" 
-                    asChild 
-                    className="bg-amber-600 hover:bg-amber-500 text-white font-black uppercase tracking-widest h-14 rounded-full shadow-[0_0_20px_rgba(217,119,6,0.4)] hover:shadow-[0_0_30px_rgba(217,119,6,0.6)] transition-all flex-1"
-                  >
-                    <a href={selectedAlbum.memoryUrl} target="_blank" rel="noopener noreferrer">
-                      Launch Player <ExternalLink className="ml-2 h-5 w-5" />
-                    </a>
-                  </Button>
-                </div>
-
-                <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-emerald-400/60">
-                  <Share className="h-3 w-3" />
-                  <span>Secure External Link • No account required to view</span>
-                </div>
-              </div>
-
-              {/* Decorative elements */}
-              <div className="absolute top-0 left-0 w-32 h-32 bg-emerald-500/10 blur-[100px] pointer-events-none" />
-              <div className="absolute bottom-0 right-0 w-32 h-32 bg-indigo-500/10 blur-[100px] pointer-events-none" />
-            </Card>
-          )}
-
           {selectedAlbum.type === 'google' && (
             <>
               {isLoadingGoogle ? (
@@ -837,7 +840,7 @@ export function PhotoGallery() {
                 </div>
               )}
               
-              <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+              <div id="gallery-photos-grid" className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {paginatedPhotos.length > 0 ? paginatedPhotos.map((img: any) => (
                   <Card key={img.id} className="group overflow-hidden border-none shadow-md hover:shadow-xl transition-shadow duration-300 rounded-xl">
                     <CardContent className="p-0">
@@ -855,9 +858,15 @@ export function PhotoGallery() {
                             e.currentTarget.src = "https://placehold.co/800x600/e2e8f0/1e293b?text=Broken+Asset";
                           }}
                         />
+                        {renderWatermark()}
                         <div className="absolute inset-0 flex flex-col justify-between bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                           <div className="absolute top-4 right-4">
-                              <Button size="sm" className="bg-white/20 hover:bg-white/40 text-white backdrop-blur-sm text-xs font-bold" onClick={(e) => { e.stopPropagation(); toast({ title: "Order Prints", description: "This feature is coming soon."})}}>
+                           <div className="absolute top-4 right-4 flex flex-col items-end gap-1.5">
+                              {img.price && (
+                                <span className="bg-emerald-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm">
+                                  ${img.price}
+                                </span>
+                              )}
+                              <Button size="sm" className="bg-white/20 hover:bg-white/40 text-white backdrop-blur-sm text-xs font-bold" onClick={(e) => { e.stopPropagation(); toast({ title: "Order Prints", description: img.price ? `Order inquiry for "${img.description}" at $${img.price} is registered.` : "This feature is coming soon."})}}>
                                 Order Prints
                               </Button>
                            </div>
@@ -870,6 +879,18 @@ export function PhotoGallery() {
                             <p className="text-sm font-semibold text-white drop-shadow-md">
                               {img.description}
                             </p>
+                            {img.uploadDate && (
+                              <p className="text-[10px] text-white/70 font-semibold mt-1.5 flex items-center gap-1">
+                                <Clock className="h-3 w-3 text-accent" />
+                                Uploaded: {formatDate(img.uploadDate)}
+                              </p>
+                            )}
+                            {img.lastUpdated && formatDate(img.lastUpdated) !== formatDate(img.uploadDate) && (
+                              <p className="text-[10px] text-white/70 font-semibold mt-0.5 flex items-center gap-1">
+                                <Clock className="h-3 w-3 text-accent" />
+                                Modified: {formatDate(img.lastUpdated)}
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>

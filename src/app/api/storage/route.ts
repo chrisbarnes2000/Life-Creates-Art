@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { bucket, db } from '@/lib/firebase-admin';
+import { bucket, db, getOrCreateDownloadUrl } from '@/lib/firebase-admin';
 
 export async function POST(req: Request) {
   const { oldPath, newPath, action } = await req.json();
@@ -128,7 +128,7 @@ export async function POST(req: Request) {
           if (!fileName) continue;
 
           const album = parts.length > 2 ? parts[1] : null;
-          const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(path)}?alt=media`;
+          const imageUrl = await getOrCreateDownloadUrl(path);
           
           const newDocRef = db.collection('gallery').doc();
           batch.set(newDocRef, {
@@ -143,10 +143,30 @@ export async function POST(req: Request) {
         }
       }
       
-      if (pruneCount > 0 || adoptCount > 0) await batch.commit();
+      // 3. Heal Untokenized URLs (Update existing DB records with proper download tokens if they use direct firebasestorage URLs without a token)
+      let healCount = 0;
+      for (const docRef of snapshot.docs) {
+        const data = docRef.data();
+        const imageUrl = data.imageUrl || '';
+        const storagePath = data.storagePath;
+        if (storagePath && imageUrl.startsWith('https://firebasestorage.googleapis.com/') && !imageUrl.includes('&token=')) {
+          try {
+            const tokenizedUrl = await getOrCreateDownloadUrl(storagePath);
+            batch.update(docRef.ref, { 
+              imageUrl: tokenizedUrl,
+              lastUpdated: new Date()
+            });
+            healCount++;
+          } catch (err) {
+            console.error(`Failed to heal URL for ${storagePath}:`, err);
+          }
+        }
+      }
+      
+      if (pruneCount > 0 || adoptCount > 0 || healCount > 0) await batch.commit();
       return NextResponse.json({ 
-        message: `Sync Complete: Adoped ${adoptCount}, Pruned ${pruneCount}`,
-        stats: { adoptCount, pruneCount }
+        message: `Sync Complete: Adopted ${adoptCount}, Pruned ${pruneCount}, Healed ${healCount} existing items`,
+        stats: { adoptCount, pruneCount, healCount }
       });
     }
 
@@ -166,7 +186,7 @@ export async function POST(req: Request) {
       
       if (!exists) return NextResponse.json({ error: 'Source file not found' }, { status: 404 });
 
-      const imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(oldPath)}?alt=media`;
+      const imageUrl = await getOrCreateDownloadUrl(oldPath);
 
       const parts = oldPath.split('/');
       const fileName = parts[parts.length - 1];
@@ -204,7 +224,7 @@ export async function POST(req: Request) {
     if (!snapshot.empty) {
       const batch = db.batch();
       
-      snapshot.docs.forEach(docRef => {
+      for (const docRef of snapshot.docs) {
         const updateData: any = { 
           storagePath: newPath,
           lastUpdated: new Date()
@@ -213,7 +233,7 @@ export async function POST(req: Request) {
         // Update imageUrl if it matches the standard pattern
         const currentData = docRef.data();
         if (currentData.imageUrl) {
-          updateData.imageUrl = `https://firebasestorage.googleapis.com/v0/b/${bucket.name}/o/${encodeURIComponent(newPath)}?alt=media`;
+          updateData.imageUrl = await getOrCreateDownloadUrl(newPath);
         }
 
         // Automatically re-categorize album based on folder structure
@@ -228,9 +248,30 @@ export async function POST(req: Request) {
 
         batch.update(docRef.ref, updateData);
         updatedMetadataCount++;
-      });
+      }
 
       await batch.commit();
+    } else {
+      // If the record didn't exist in Firestore, but the file is being moved to gallery/...
+      // let's automatically adopt it so a database document is created for it!
+      if (newPath.startsWith('gallery/') && !newPath.endsWith('/')) {
+        const parts = newPath.split('/');
+        const fileName = parts[parts.length - 1];
+        if (fileName) {
+          const album = parts.length > 2 ? parts[1] : null;
+          const imageUrl = await getOrCreateDownloadUrl(newPath);
+          
+          await db.collection('gallery').add({
+            imageUrl,
+            storagePath: newPath,
+            description: fileName.replace(/_/g, ' ').split('.')[0] || 'Imported Asset',
+            album,
+            uploadDate: new Date(),
+            lastUpdated: new Date()
+          });
+          updatedMetadataCount = 1;
+        }
+      }
     }
 
     return NextResponse.json({ 

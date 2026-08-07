@@ -17,10 +17,13 @@ export function initializeFirebase() {
 
 export function getSdks(firebaseApp: FirebaseApp) {
   console.log('Using firebaseConfig:', firebaseConfig);
+  const dbId = (!firebaseConfig.firestoreDatabaseId || firebaseConfig.firestoreDatabaseId === 'default')
+    ? undefined
+    : firebaseConfig.firestoreDatabaseId;
   return {
     firebaseApp,
     auth: getAuth(firebaseApp),
-    firestore: getFirestore(firebaseApp, firebaseConfig.firestoreDatabaseId),
+    firestore: dbId ? getFirestore(firebaseApp, dbId) : getFirestore(firebaseApp),
     storage: getStorage(firebaseApp)
   };
 }

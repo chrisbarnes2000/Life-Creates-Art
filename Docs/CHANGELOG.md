@@ -2,6 +2,107 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.5] - 2026-08-07
+### Added
+- **Client-Side HEIC-to-JPEG Image Conversion**:
+    - Integrated the high-performance client-side `heic2any` library using dynamic lazy imports to avoid server-side rendering (SSR) window/document environment issues.
+    - Added automatic `.heic` and `.heif` extension/MIME detection to convert Apple High-Efficiency Image Container uploads seamlessly into standard, widely supported `.jpg` images directly in the browser before transfer.
+    - Enabled flawless image rendering, preventing broken asset images in the admin file list or the public gallery.
+- **Universal Custom Watermark Overlay**:
+    - Expanded the customizable CSS-overlay watermark (`siteSettings?.watermarkText`) to render flawlessly over direct uploads/custom albums inside `/src/components/photo-gallery.tsx`.
+    - Protected both Google Photos-sourced collections and custom self-hosted database-reconciled items uniformly under the exact same brand aesthetic, while retaining intact original high-res downloads for admins.
+
+## [0.2.4] - 2026-08-07
+### Added
+- **State-Controlled Custom Confirmation Modals**:
+    - Replaced all blocking native browser `confirm()` prompt calls in `/src/components/storage-manager.tsx` with high-performance, non-blocking Radix UI `AlertDialog` components.
+    - Added custom state tracking (`confirmState`) to handle confirmations for critical operations such as:
+        - Individual file deletion (`deleteFile`)
+        - Bulk asset deletion (`handleBulkDelete`)
+        - Bulk archiving selection (`handleBulkArchiveSelected`)
+        - Bulk asset migration to folder directories (`handleBulkMoveToSubdir`)
+        - System reconciliation/untracked asset archiving (`handleBulkArchive`)
+        - Deep database integrity scans and repairs (`handleIntegrityRepair`)
+    - Styled custom modals with elegant displays matching the brand identity, featuring premium rounded borders (`rounded-xl`), high-contrast display headings, clean margins, and clear visual indicators for destructive and non-destructive events.
+- **Developer Instructions Documentation**:
+    - Appended a dedicated section inside `/Docs/Agents_Instructions/ERROR_PATTERNS.md` highlighting the limitations of native browser prompts (e.g. `window.confirm`, `window.alert`, `window.prompt`) inside sandboxed iframe previews.
+    - Outlined the standard fix guidelines instructing future agents to default to state-controlled Radix primitives with async callback closure deferrals.
+
+## [0.2.3] - 2026-08-07
+### Fixed
+- **Client-Side Image Compression & Resilient Batch Upload**:
+    - Implemented a standard, self-contained HTML5 Canvas image compressor helper `compressImage` to automatically compress and scale images exceeding 1MB down to a maximum width of 1920px with 82% quality on the client-side.
+    - Optimized request payloads to prevent "413 Payload Too Large" or browser-level connection closures when uploading huge camera files.
+    - Wrapped individual uploads inside the batch loop with independent error boundaries so that any network, timeout, or payload issues on a single file won't interrupt or abort the uploading of the rest of the batch.
+
+## [0.2.2] - 2026-08-07
+### Fixed
+- **Secure Storage Tokenization & Self-Healing Previews**:
+    - Introduced a robust `getOrCreateDownloadUrl` helper in `firebase-admin.ts` to automatically read existing metadata or generate a new, unguessable persistent `firebaseStorageDownloadTokens` UUID on GCS, returning fully authenticated URLs (`&token=...`).
+    - Configured all server-side operations (including uploads, adoptions, synchronizations, and moving files) to automatically generate and register these persistent tokens so that images never show up as broken.
+    - Added a powerful, server-side self-healing loop to the database synchronization action (`prune`). When triggered, it scans existing database items, detects old, unauthenticated legacy URLs, and upgrades them automatically.
+    - Implemented a secure, high-performance image-streaming proxy endpoint at `/api/storage/preview` that securely loads and streams files in GCS on-the-fly, and mapped all untracked files in the storage manager to this proxy.
+
+## [0.2.1] - 2026-08-07
+### Fixed
+- **Database Alignment & Resolution Fix**:
+    - Resolved a critical multi-database targeting mismatch where client-side SDK connected to the `"default"` database ID (which bypassed deployed security rules and caused empty results), while the server-side Admin SDK and CLI rule deployments targeted the standard `"(default)"` database.
+    - Configured client-side initialization to automatically omit the database ID argument if configured as `"default"`, letting the SDK correctly resolve to the standard default database instance `(default)`.
+    - Aligned server-side Firebase Admin SDK to follow identical resolution patterns, ensuring unified state across both execution contexts.
+    - Deployed the latest hardened Firestore security rules to protect the main `(default)` database.
+
+## [0.2.0] - 2026-08-07
+### Added
+- **Date Filtering and Date Display in Project Gallery**:
+    - Introduced a Sort-By dropdown to the public gallery dashboard, supporting ordering by Upload Date (Newest first, Oldest first) and Last Modified Date (Recently modified first, Last modified first).
+    - Integrated interactive clock icons with dynamic, clean, and safe date formatting to display Uploaded Date and Last Modified Date directly on custom gallery cards when hovered.
+    - Updated custom photos list processing to dynamically sort items client-side using robust timestamp parsing of both Firestore timestamps and standard date representations.
+    - Added unique target id `gallery-photos-grid` on the main custom photos grid layout container for semantic styling and DOM targeting.
+
+## [0.1.21] - 2026-08-06
+### Added
+- **Dynamic File Upload Option in System Explorer**:
+    - Created a secure, server-side upload API endpoint (`/api/storage/upload`) supporting direct file stream handling, automatic folder destination resolution, and direct Google Cloud Storage writing via Firebase Admin SDK.
+    - Integrated a highly polished, interactive drag-and-drop file upload zone with click-to-browse support within the `StorageManager` component.
+    - Added instant queue list management allowing batch uploading of multiple file selections with automatic directory mapping.
+    - Introduced a live "Auto-Adopt into Registry" mechanism that registers uploaded assets automatically into the Firestore gallery metadata index when saved under target gallery subfolders.
+
+## [0.1.20] - 2026-08-06
+### Changed
+- **Removed Hardcoded Shed Pricing**:
+    - Purged legacy hardcoded shed and dome pricing/limits config data from the active configuration state and Settings panel.
+    - Simplified general site configuration to focus entirely on core portfolio properties (theme, watermarks, testimonials).
+- **Portfolio and Google Album Pricing**:
+    - Added an optional "Default Print Price" field for Google Photos albums within the Admin control hub.
+    - Display pricing overlays (`Prints from $X`) directly on Google Album preview cards.
+    - Integrated direct price badge indicators on individual gallery photo hover states with dynamic ordering feedback.
+- **Project Directory Clean-up**:
+    - Deleted redundant, unused legacy script artifacts and scrapers (`verify-scrape.js`, `test-scraper.js`, `test-storage.js`, `get-matches.js`, `get-matches-filter.js`, and temporary output texts) to secure a pristine root filesystem.
+
+## [0.1.19] - 2026-08-06
+### Changed
+- **Automatic Asset Adoption & Improved Storage Explorer**:
+    - Enhanced `/api/storage`'s move handler to automatically adopt and generate a Firestore gallery document whenever an untracked file is moved into a `gallery/` path.
+    - Updated `StorageManager` to expose the **Adopt** button for any untracked storage asset (excluding those in the archived system folders), enabling immediate manual collection registration for images uploaded directly via the Firebase Console.
+
+## [0.1.18] - 2026-08-06
+### Changed
+- **Upload Center Removal & Documentation Update**:
+    - Removed the Upload Center interface and batch upload form from the admin `GalleryTab` since image uploading is non-functional.
+    - Retained and streamlined the **System Explorer** for centralized repository and metadata management.
+    - Updated documentation to reflect that direct image uploading is deprecated and inactive.
+
+## [0.1.17] - 2026-08-06
+### Changed
+- **Firestore and Storage Rules Update**:
+    - Updated `firebase-blueprint.json` and `firestore.rules` to remove legacy shed design references and replace them with fine art wishlist and customer data models.
+    - Successfully deployed active security rules to production Firestore and Storage.
+
+## [0.1.16] - 2026-07-30
+### Changed
+- **Documentation & README Rebranding**:
+    - Updated `README.md`, `Docs/README.md`, `Docs/STRUCTURE.md`, `Docs/INDEX_ROADMAP.md`, `Docs/INDEX_AUDIT.md`, and `Docs/blueprint.md` to fully reflect **LifeCreatesArt** and Tina Barnes' fine art portfolio, gallery management, and creative showcase platform, removing residual MiniBarnMaster references.
+
 ## [0.1.15] - 2026-07-16
 ### Changed
 - **Removed and Updated Core Site Infrastructure Section**:

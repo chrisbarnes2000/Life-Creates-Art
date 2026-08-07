@@ -1,6 +1,6 @@
-# MiniBarnMaster
+# LifeCreatesArt
 
-Professional shed design and weather-resilient customization platform for the Pacific Northwest.
+Fine art portfolio, gallery management, and creative showcase platform for Tina Barnes.
 
 ## Documentation
 The core project documentation is maintained in the **[/Docs/](./Docs/)** directory. 
@@ -19,3 +19,4 @@ For AI flow development:
 ```bash
 npm run genkit:dev
 ```
+

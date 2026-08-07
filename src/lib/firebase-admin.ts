@@ -1,4 +1,6 @@
 import * as admin from 'firebase-admin';
+import firebaseConfig from '../../firebase-applet-config.json';
+import crypto from 'crypto';
 
 function ensureInit() {
   if (!admin.apps.length) {
@@ -30,7 +32,10 @@ function ensureInit() {
 export const db = new Proxy({} as admin.firestore.Firestore, {
   get(_, prop) {
     ensureInit();
-    const firestoreInstance = admin.firestore();
+    const dbId = (!firebaseConfig.firestoreDatabaseId || firebaseConfig.firestoreDatabaseId === 'default')
+      ? undefined
+      : firebaseConfig.firestoreDatabaseId;
+    const firestoreInstance = dbId ? admin.firestore(dbId) : admin.firestore();
     const value = Reflect.get(firestoreInstance, prop);
     if (typeof value === 'function') {
       return value.bind(firestoreInstance);
@@ -74,3 +79,36 @@ export const bucket = new Proxy({} as any, {
     return value;
   }
 });
+
+export async function getOrCreateDownloadUrl(path: string): Promise<string> {
+  ensureInit();
+  const bucketInstance = admin.storage().bucket();
+  const fileRef = bucketInstance.file(path);
+  const bucketName = bucketInstance.name;
+  
+  try {
+    const [exists] = await fileRef.exists();
+    if (!exists) {
+      return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(path)}?alt=media`;
+    }
+    
+    const [metadata] = await fileRef.getMetadata();
+    let token = metadata.metadata?.firebaseStorageDownloadTokens;
+    
+    if (!token) {
+      token = crypto.randomUUID();
+      await fileRef.setMetadata({
+        metadata: {
+          firebaseStorageDownloadTokens: token
+        }
+      });
+    }
+    
+    return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(path)}?alt=media&token=${token}`;
+  } catch (error) {
+    console.error(`Error getting or creating download URL for ${path}:`, error);
+    // Secure fallback: construct standard format even if offline
+    return `https://firebasestorage.googleapis.com/v0/b/${bucketName}/o/${encodeURIComponent(path)}?alt=media`;
+  }
+}
+

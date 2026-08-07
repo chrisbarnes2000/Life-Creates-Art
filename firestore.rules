@@ -46,7 +46,7 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
-    // Customer specific data (like shedDesigns)
+    // Customer specific data (like wishlist and art inquiries)
     match /customers/{userId}/{document=**} {
       allow read, write: if isOwner(userId) || isAdmin();
     }

@@ -3,7 +3,7 @@ import { db } from '@/lib/firebase-admin';
 
 export async function PATCH(req: Request) {
   try {
-    const { id, description, album, subAlbum, hoverText } = await req.json();
+    const { id, description, album, subAlbum, hoverText, price } = await req.json();
 
     if (!id) {
       return NextResponse.json({ error: 'ID is required' }, { status: 400 });
@@ -18,6 +18,7 @@ export async function PATCH(req: Request) {
     if (album !== undefined) updateData.album = album;
     if (subAlbum !== undefined) updateData.subAlbum = subAlbum;
     if (hoverText !== undefined) updateData.hoverText = hoverText;
+    if (price !== undefined) updateData.price = price;
 
     await docRef.update(updateData);
 

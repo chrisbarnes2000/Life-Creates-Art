@@ -1,6 +1,6 @@
 # Project Roadmap Index
 
-This index tracks all active and planned roadmaps for the MiniBarnMaster project.
+This index tracks all active and planned roadmaps for the LifeCreatesArt project.
 
 ## Active Roadmaps
 - **[Customer Portal](./RoadMaps/CUSTOMER_PORTAL.md)**: Transitioning from one-time submissions to a persistent user experience.

@@ -1,6 +1,6 @@
-# MiniBarnMaster Documentation
+# LifeCreatesArt Documentation
 
-Welcome to the internal documentation for **MiniBarnMaster**, a high-quality shed design and weather-resilience platform.
+Welcome to the internal documentation for **LifeCreatesArt**, a high-quality fine art portfolio, gallery management, and creative showcase platform for Tina Barnes.
 
 ## Documentation Navigation
 - **[STRUCTURE.md](./STRUCTURE.md)**: Overview of the codebase and architecture.

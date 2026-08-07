@@ -94,7 +94,7 @@
         },
         "category": {
           "type": "string",
-          "description": "e.g., Shed, Dome, Commercial"
+          "description": "e.g., Fine Art, Photography, Exhibition"
         },
         "date": {
           "type": "string",
@@ -130,6 +130,9 @@
         "subAlbum": {
           "type": "string"
         },
+        "price": {
+          "type": "string"
+        },
         "uploadDate": {
           "type": "string",
           "format": "date-time"
@@ -150,6 +153,12 @@
         "testimonialsEnabled": {
           "type": "boolean"
         },
+        "watermarkEnabled": {
+          "type": "boolean"
+        },
+        "watermarkText": {
+          "type": "string"
+        },
         "lastUpdated": {
           "type": "string",
           "format": "date-time"
@@ -159,23 +168,17 @@
         "lastUpdated"
       ]
     },
-    "ShedDesign": {
-      "title": "ShedDesign",
+    "ArtWishlist": {
+      "title": "ArtWishlist",
       "type": "object",
       "properties": {
         "id": {
           "type": "string"
         },
-        "style": {
+        "itemId": {
           "type": "string"
         },
-        "size": {
-          "type": "string"
-        },
-        "siding": {
-          "type": "string"
-        },
-        "roof": {
+        "notes": {
           "type": "string"
         },
         "createdAt": {
@@ -218,9 +221,9 @@
         }
       },
       {
-        "path": "/customers/{userId}/shedDesigns/{designId}",
+        "path": "/customers/{userId}/wishlist/{wishlistId}",
         "definition": {
-          "entityName": "ShedDesign"
+          "entityName": "ArtWishlist"
         }
       }
     ]
