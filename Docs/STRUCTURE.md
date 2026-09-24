@@ -8,7 +8,12 @@ LifeCreatesArt is a professional fine art portfolio, gallery management, and cre
 - `/src/components`: UI components, including the Photo Gallery, Testimonials, and About Us.
 - `/src/firebase`: Firebase configuration, providers, and custom hooks for Firestore.
 - `/src/lib`: Shared types, utility functions, and demo data.
-- `/Docs`: Project maintenance, roadmaps, and architectural strategy documentation.
+- `/public`: Static web assets, theme-adaptive vector favicon (`icon.svg`), PWA manifests, and multi-resolution brand icons (`icon.png`, `icon-192.png`, `apple-icon.png`, `favicon.ico`, `opengraph-image.png`).
+- `/tests`: Automated unit tests verifying brand invariants, asset resolutions, and schema validation.
+- `/Docs`: Project maintenance, roadmaps, audits, and architectural strategy documentation.
+  - `/Docs/CHANGELOG_DEV.md`: High-frequency developer log capturing granular code-level updates.
+  - `/Docs/CHANGELOG.md`: Customer-facing milestone release notes.
+  - `/Docs/Audits/`: System security, accessibility, and architectural audit reports.
 
 ## Key Components
 - **Photo Gallery** (`/src/components/photo-gallery.tsx`): Interactive fine art photo and album viewer with lightbox and watermark overlay.

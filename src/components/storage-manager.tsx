@@ -124,6 +124,20 @@ async function convertHeicIfNecessary(file: File): Promise<File> {
   }
 }
 
+function getFriendlyDisplayName(filename: string): string {
+  // Remove file extension
+  const base = filename.replace(/\.[^/.]+$/, "");
+  // Replace underscores, hyphens, and dots with spaces
+  const withSpaces = base.replace(/[_\-\.]+/g, " ");
+  // Capitalize each word
+  return withSpaces
+    .split(" ")
+    .filter(Boolean)
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ")
+    .trim();
+}
+
 export function StorageManager({ 
   albumSuggestions = [], 
   galleryItems = [],
@@ -180,7 +194,9 @@ export function StorageManager({
 
   // Upload States
   const [uploadFiles, setUploadFiles] = React.useState<File[]>([]);
+  const [displayNames, setDisplayNames] = React.useState<Record<string, string>>({});
   const [uploadPath, setUploadPath] = React.useState('gallery/');
+  const [uploadPrice, setUploadPrice] = React.useState('');
   const [autoAdoptUpload, setAutoAdoptUpload] = React.useState(true);
   const [uploading, setUploading] = React.useState(false);
   const [dragActive, setDragActive] = React.useState(false);
@@ -202,6 +218,15 @@ export function StorageManager({
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const droppedFiles = Array.from(e.dataTransfer.files);
       setUploadFiles(prev => [...prev, ...droppedFiles]);
+      setDisplayNames(prev => {
+        const next = { ...prev };
+        droppedFiles.forEach(file => {
+          if (!next[file.name]) {
+            next[file.name] = getFriendlyDisplayName(file.name);
+          }
+        });
+        return next;
+      });
     }
   };
 
@@ -209,11 +234,28 @@ export function StorageManager({
     if (e.target.files && e.target.files[0]) {
       const selected = Array.from(e.target.files);
       setUploadFiles(prev => [...prev, ...selected]);
+      setDisplayNames(prev => {
+        const next = { ...prev };
+        selected.forEach(file => {
+          if (!next[file.name]) {
+            next[file.name] = getFriendlyDisplayName(file.name);
+          }
+        });
+        return next;
+      });
     }
   };
 
   const removeQueuedFile = (index: number) => {
+    const fileToRemove = uploadFiles[index];
     setUploadFiles(prev => prev.filter((_, i) => i !== index));
+    if (fileToRemove) {
+      setDisplayNames(prev => {
+        const next = { ...prev };
+        delete next[fileToRemove.name];
+        return next;
+      });
+    }
   };
 
   const handleUpload = async () => {
@@ -246,6 +288,13 @@ export function StorageManager({
         formData.append('file', file);
         formData.append('path', uploadPath);
         formData.append('autoAdopt', autoAdoptUpload ? 'true' : 'false');
+        
+        const customName = displayNames[file.name] || getFriendlyDisplayName(file.name);
+        formData.append('description', customName);
+
+        if (uploadPrice.trim()) {
+          formData.append('price', uploadPrice.trim());
+        }
 
         try {
           const response = await fetch('/api/storage/upload', {
@@ -271,6 +320,7 @@ export function StorageManager({
           description: `Successfully uploaded ${successCount} file(s) ${autoAdoptUpload ? 'and registered them in gallery' : ''}.`
         });
         setUploadFiles([]);
+        setDisplayNames({});
         fetchFiles(true);
         if (onRefresh) onRefresh();
       }
@@ -848,66 +898,92 @@ export function StorageManager({
       </div>
 
       {/* Dynamic File Uploader Block */}
-      <div className="bg-background dark:bg-black/30 rounded-2xl border border-primary/20 p-6 shadow-md space-y-4">
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2">
+      <div className="bg-background dark:bg-black/30 rounded-2xl border-2 border-primary/30 p-6 shadow-xl space-y-5">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 border-b border-primary/10 pb-4">
           <div>
-            <h5 className="font-black text-sm uppercase tracking-wider text-primary flex items-center gap-2">
-              <Upload className="h-4 w-4 text-primary" />
-              Upload New Assets to Storage
+            <h5 className="font-black text-base uppercase tracking-wider text-primary flex items-center gap-2">
+              <Upload className="h-5 w-5 text-primary" />
+              Upload New Photos & Albums to Sell
             </h5>
-            <p className="text-[10px] text-muted-foreground font-semibold">Upload high-res artwork or photos into your system folder</p>
+            <p className="text-xs text-muted-foreground font-semibold mt-0.5">
+              Select or create an album, set your price, and drag & drop photos directly from your phone or computer.
+            </p>
           </div>
-          <Badge variant="outline" className="text-[9px] font-bold uppercase tracking-tight border-primary/20 bg-primary/5 text-primary">
-            Storage Engine Active
-          </Badge>
+          <div className="flex items-center gap-2">
+            <Badge className="text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-white px-3 py-1 shadow-sm">
+              iPhone HEIC Ready
+            </Badge>
+            <Badge variant="outline" className="text-[10px] font-black uppercase tracking-tight border-primary/30 bg-primary/5 text-primary px-3 py-1">
+              Active Storage Engine
+            </Badge>
+          </div>
+        </div>
+
+        {/* Quick Instructions Banner */}
+        <div className="bg-primary/5 dark:bg-primary/10 p-3 rounded-xl border border-primary/20 text-xs flex flex-wrap items-center justify-between gap-2">
+          <span className="font-bold text-primary flex items-center gap-1.5">
+            💡 <strong>Quick Steps for Mom:</strong> 
+          </span>
+          <span className="text-muted-foreground font-medium">
+            <strong>1.</strong> Type or pick an <strong>Album Name</strong> &nbsp;|&nbsp; 
+            <strong>2.</strong> Enter a <strong>Sale Price ($)</strong> &nbsp;|&nbsp; 
+            <strong>3.</strong> Drop your photos & click <strong>Start Upload</strong>
+          </span>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Settings & Configuration Left */}
           <div className="lg:col-span-1 space-y-4">
             <div className="space-y-1.5">
-              <Label className="text-[10px] font-black uppercase text-primary tracking-wide">
-                Target Folder Path
+              <Label className="text-[11px] font-black uppercase text-primary tracking-wide flex items-center gap-1">
+                Folder / Album Path
               </Label>
               <Input
                 value={uploadPath}
                 onChange={(e) => setUploadPath(e.target.value)}
                 placeholder="e.g. gallery/Barns/"
-                className="h-9 font-bold text-xs"
+                className="h-10 font-bold text-xs bg-background"
               />
-              <p className="text-[9px] text-muted-foreground font-medium">Specify the destination directory in your storage bucket.</p>
+              <p className="text-[9px] text-muted-foreground font-medium">Destination folder in your cloud media storage.</p>
+            </div>
+
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-black uppercase text-primary tracking-wide">
+                Print / Artwork Price ($ USD)
+              </Label>
+              <Input
+                value={uploadPrice}
+                onChange={(e) => setUploadPrice(e.target.value)}
+                placeholder="e.g. 150 (Optional)"
+                className="h-10 font-bold text-xs bg-background"
+                type="number"
+              />
+              <p className="text-[9px] text-muted-foreground font-medium">Default price shown for artwork/prints uploaded in this batch.</p>
             </div>
 
             {albumSuggestions.length > 0 && (
               <div className="space-y-1.5">
-                <Label className="text-[9px] font-black uppercase text-primary/60 tracking-wider">
-                  Quick Folder Select:
+                <Label className="text-[10px] font-black uppercase text-primary/70 tracking-wider">
+                  Existing Albums:
                 </Label>
                 <div className="flex flex-wrap gap-1.5">
                   <Badge
                     variant="secondary"
-                    className={`cursor-pointer text-[9px] font-black py-0.5 px-2 ${uploadPath === 'gallery/' ? 'bg-primary text-primary-foreground' : 'hover:bg-primary/10'}`}
+                    className={`cursor-pointer text-[10px] font-black py-1 px-2.5 rounded-lg transition-all ${uploadPath === 'gallery/' ? 'bg-primary text-primary-foreground shadow-sm' : 'hover:bg-primary/10'}`}
                     onClick={() => setUploadPath('gallery/')}
                   >
-                    gallery/ (Root)
+                    gallery/ (Main)
                   </Badge>
                   {albumSuggestions.map(album => (
                     <Badge
                       key={album}
                       variant="outline"
-                      className={`cursor-pointer text-[9px] font-black py-0.5 px-2 ${uploadPath === `gallery/${album}/` ? 'bg-primary border-primary text-primary-foreground' : 'border-primary/20 text-primary hover:bg-primary/10'}`}
+                      className={`cursor-pointer text-[10px] font-black py-1 px-2.5 rounded-lg transition-all ${uploadPath === `gallery/${album}/` ? 'bg-primary border-primary text-primary-foreground shadow-sm' : 'border-primary/20 text-primary hover:bg-primary/10'}`}
                       onClick={() => setUploadPath(`gallery/${album}/`)}
                     >
                       {album}
                     </Badge>
                   ))}
-                  <Badge
-                    variant="outline"
-                    className={`cursor-pointer text-[9px] font-black py-0.5 px-2 ${uploadPath === 'archive/' ? 'bg-amber-600 border-amber-600 text-white' : 'border-primary/20 text-primary hover:bg-primary/10'}`}
-                    onClick={() => setUploadPath('archive/')}
-                  >
-                    archive/
-                  </Badge>
                 </div>
               </div>
             )}
@@ -924,10 +1000,10 @@ export function StorageManager({
                   htmlFor="auto-adopt-upload"
                   className="text-[10px] font-black uppercase tracking-wider text-primary cursor-pointer"
                 >
-                  Auto-Adopt into Registry
+                  Publish Directly to Public Gallery
                 </Label>
                 <p className="text-[9px] text-muted-foreground font-medium">
-                  Automatically register uploaded photos in the active portfolio gallery when saved under <code className="font-mono">gallery/</code>.
+                  Automatically list uploaded artwork in your live shop and portfolio.
                 </p>
               </div>
             </div>
@@ -981,32 +1057,54 @@ export function StorageManager({
                     variant="ghost"
                     size="sm"
                     className="h-6 text-[9px] font-black uppercase text-destructive hover:bg-destructive/10"
-                    onClick={() => setUploadFiles([])}
+                    onClick={() => {
+                      setUploadFiles([]);
+                      setDisplayNames({});
+                    }}
                   >
                     Clear Queue
                   </Button>
                 </div>
-                <div className="max-h-40 overflow-y-auto space-y-2 pr-2 custom-scrollbar">
+                <div className="max-h-60 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
                   {uploadFiles.map((file, idx) => (
-                    <div key={idx} className="flex justify-between items-center bg-background/80 p-2 rounded-lg border border-primary/10 text-xs">
-                      <div className="flex items-center space-x-2 min-w-0">
-                        <ImageIcon className="h-4 w-4 shrink-0 text-primary/40" />
-                        <span className="truncate font-bold text-[11px] text-primary">{file.name}</span>
-                        <span className="text-[9px] text-muted-foreground font-semibold shrink-0">
-                          ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                        </span>
+                    <div key={idx} className="flex flex-col gap-2 bg-background p-3 rounded-lg border border-primary/10 text-xs shadow-sm">
+                      <div className="flex justify-between items-center min-w-0">
+                        <div className="flex items-center space-x-2 min-w-0">
+                          <ImageIcon className="h-4 w-4 shrink-0 text-primary/40" />
+                          <span className="truncate font-bold text-[11px] text-primary" title={file.name}>{file.name}</span>
+                          <span className="text-[9px] text-muted-foreground font-semibold shrink-0">
+                            ({(file.size / 1024 / 1024).toFixed(2)} MB)
+                          </span>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 text-destructive hover:bg-destructive/10 shrink-0"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            removeQueuedFile(idx);
+                          }}
+                        >
+                          <X className="h-3.5 w-3.5" />
+                        </Button>
                       </div>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 text-destructive hover:bg-destructive/10 shrink-0"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          removeQueuedFile(idx);
-                        }}
-                      >
-                        <X className="h-3.5 w-3.5" />
-                      </Button>
+                      
+                      <div className="flex items-center gap-2 border-t border-primary/5 pt-2">
+                        <Label htmlFor={`displayName-${idx}`} className="text-[10px] font-black uppercase text-primary/70 tracking-wider shrink-0 w-24">Display Title:</Label>
+                        <Input
+                          id={`displayName-${idx}`}
+                          value={displayNames[file.name] || ''}
+                          onChange={(e) => {
+                            setDisplayNames(prev => ({
+                              ...prev,
+                              [file.name]: e.target.value
+                            }));
+                          }}
+                          placeholder="Friendly Display Title / Name"
+                          className="h-8 text-[11px] font-semibold bg-background"
+                        />
+                      </div>
                     </div>
                   ))}
                 </div>

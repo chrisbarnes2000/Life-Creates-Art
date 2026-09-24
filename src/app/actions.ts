@@ -9,7 +9,7 @@ import {
 import { auth as adminAuth } from '@/lib/firebase-admin';
 
 export async function syncAdminClaims(uid: string, email: string) {
-  const allowedAdmins = ['chris.barnes.2000@me.com'];
+  const allowedAdmins = ['chris.barnes.2000@me.com', 'lifecreatesart@yahoo.com'];
   if (allowedAdmins.includes(email.toLowerCase())) {
     try {
       await adminAuth.setCustomUserClaims(uid, { admin: true });

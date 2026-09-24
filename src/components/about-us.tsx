@@ -38,7 +38,7 @@ export function AboutUs() {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-8 px-6 md:px-8 pb-8">
-        <p className="text-lg leading-relaxed text-foreground/90 max-w-3xl">
+        <p className="text-lg leading-relaxed text-foreground/90 w-full">
           Hi, I'm Tina Barnes. With over a decade of experience managing businesses and prioritizing safety, I bring unwavering focus and independence to everything I do. Raising five children has taught me resilience, while my art allows me to channel my keen observation and strength into something beautiful and lasting. I pride myself on staying calm under pressure and building a life on my own terms.
         </p>
         

@@ -13,10 +13,24 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: 'LifeCreatesArt - Photo Gallery & Journey by Tina Croft Barnes',
+  title: 'LifeCreatesArt - Fine Art & Photography by Tina Croft Barnes',
   description:
-    'Explore the photography and fine art gallery of Tina Croft Barnes, a story of resilience, strength, and creative freedom captured in every frame.',
+    'Explore the photography and fine art gallery of Tina Croft Barnes. Webmaster & Founder of RapportVerse: Chris Barnes.',
+  icons: {
+    icon: [
+      { url: '/icon.svg', type: 'image/svg+xml' },
+      { url: '/icon.png', sizes: '512x512', type: 'image/png' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
+    shortcut: '/favicon.ico',
+    apple: [
+      { url: '/apple-icon.png', sizes: '180x180', type: 'image/png' },
+    ],
+  },
+  manifest: '/site.webmanifest',
 };
+
+import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 
 export default function RootLayout({
   children,
@@ -36,6 +50,7 @@ export default function RootLayout({
             <FirebaseClientProvider>
               {children}
               <Toaster />
+              <PwaInstallPrompt />
             </FirebaseClientProvider>
           </ThemeProvider>
         </UserPreferencesProvider>

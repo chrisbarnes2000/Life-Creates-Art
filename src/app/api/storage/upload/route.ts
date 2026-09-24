@@ -48,7 +48,9 @@ export async function POST(req: Request) {
     if (autoAdopt && targetPath.startsWith('gallery/')) {
       const parts = targetPath.split('/');
       const fileName = parts[parts.length - 1];
-      const album = parts.length > 2 ? parts[1] : null;
+      const album = parts.length > 2 ? parts[1] : (formData.get('album') as string || null);
+      const price = formData.get('price') as string | null;
+      const customDescription = formData.get('description') as string | null;
 
       // Check if it already exists in Firestore to avoid duplicates
       const existing = await db.collection('gallery').where('storagePath', '==', targetPath).get();
@@ -56,8 +58,9 @@ export async function POST(req: Request) {
         await db.collection('gallery').add({
           imageUrl,
           storagePath: targetPath,
-          description: fileName.replace(/_/g, ' ').split('.')[0] || 'Uploaded Asset',
-          album,
+          description: customDescription || fileName.replace(/_/g, ' ').split('.')[0] || 'Uploaded Asset',
+          album: album || 'Custom Gallery',
+          price: price ? price : null,
           uploadDate: new Date(),
           lastUpdated: new Date()
         });

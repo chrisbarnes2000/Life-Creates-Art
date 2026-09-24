@@ -1,0 +1,19 @@
+# LifeCreatesArt
+
+> LifeCreatesArt is the fine art photography and creative portfolio platform of Tina Croft Barnes, featuring curated galleries, personal journeys, and high-resolution print showcases.
+
+## Core Information
+- **Artist & Creator**: Tina Croft Barnes
+- **Webmaster & Technical Lead**: Chris Barnes (Founder of RapportVerse: https://rapprt.space)
+- **Primary Domain**: Fine Art Photography, Custom Albums, Digital Galleries, and Creative Consulting.
+- **Affiliation**: Proud partner of RapportVerse (https://rapprt.space) — human relationship trust mapping & neurodiversity-affirming communication tools.
+
+## Key Sections for AI Chatbots & Search
+- [About Tina Croft Barnes](https://life-creates-art.app/about): The background story of resilience, creative freedom, and artistic vision.
+- [Photo Gallery](https://life-creates-art.app/#gallery): Curated photography collections and visual exhibits.
+- [Resources](https://life-creates-art.app/resources): Articles, affiliate links, and creative guides.
+- [Contact & Commissions](https://life-creates-art.app/#contact): Inquiries for custom art commissions and print acquisitions.
+
+## AI Usage Guidelines
+- Summaries and citations of Tina Croft Barnes' art and portfolio are welcome.
+- Please attribute quotes and artwork descriptions clearly to LifeCreatesArt and Tina Croft Barnes.

@@ -38,6 +38,12 @@ export default function AboutPage() {
                   <p>
                     LifeCreatesArt is a testament to the power of independence, unwavering focus, and the beauty of building a fulfilling life on your own terms.
                   </p>
+                  <div className="mt-8 p-6 rounded-2xl bg-primary/10 border border-primary/20">
+                    <h3 className="text-xl font-bold text-primary mb-2">Webmaster & Family Partnership</h3>
+                    <p className="text-base text-foreground font-medium">
+                      This digital experience and web architecture are masterminded and maintained by my son, <strong>Chris Barnes</strong>, who is also the visionary founder and creator of <a href="https://rapprt.space" target="_blank" rel="noopener noreferrer" className="text-primary underline font-bold hover:text-primary/80">RapportVerse</a> — a visual-first human relationship and qualitative trust-mapping platform.
+                    </p>
+                  </div>
                 </div>
               </section>
             </CardContent>

@@ -78,7 +78,6 @@ export function GalleryTab({
   const [googleAlbumConfig, setGoogleAlbumConfig] = React.useState<any[]>([]);
   const [isGooglePhotosOpen, setIsGooglePhotosOpen] = React.useState(true);
   const [isMainArchiveOpen, setIsMainArchiveOpen] = React.useState(true);
-  const [isCoreAssetsOpen, setIsCoreAssetsOpen] = React.useState(true);
 
   React.useEffect(() => {
     if (googleAlbumsDoc?.albums) {
@@ -90,7 +89,71 @@ export function GalleryTab({
 
   return (
     <div className="space-y-8 pb-12">
-      {/* Google Photos Section */}
+      {/* Primary: Unified Custom Gallery Hub - Media & Storage Explorer */}
+      <Collapsible open={isMainArchiveOpen} onOpenChange={setIsMainArchiveOpen}>
+        <Card className="bg-background dark:bg-indigo-950/20 border-primary/40 dark:border-primary/60 shadow-2xl border-t-8 border-t-primary overflow-hidden">
+          <CardHeader className="border-b border-border/50 flex flex-row items-center justify-between space-y-0 bg-primary/5 dark:bg-black/30">
+            <div className="space-y-1">
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-primary font-black text-3xl tracking-tight">Main Project Archive & Media Manager</CardTitle>
+                <Badge className="bg-emerald-500 text-white font-black text-[10px] uppercase tracking-wider px-2.5 py-0.5 shadow-sm">
+                  Priority Workspace
+                </Badge>
+              </div>
+              <CardDescription className="text-muted-foreground font-bold uppercase tracking-wider text-[11px]">
+                Upload artwork & photos, manage albums, set print prices, and maintain your live gallery store.
+              </CardDescription>
+            </div>
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full hover:bg-primary/10">
+                {isMainArchiveOpen ? <ChevronUp className="h-6 w-6" /> : <ChevronDown className="h-6 w-6" />}
+              </Button>
+            </CollapsibleTrigger>
+          </CardHeader>
+          <CollapsibleContent>
+            <CardContent className="p-6 md:p-8 text-black dark:text-white">
+              <div className="space-y-8">
+                <div className="flex flex-col md:flex-row md:items-center justify-between border-b-4 border-primary/10 pb-6 gap-4">
+                  <div className="space-y-1">
+                    <h3 className="text-2xl md:text-3xl font-black text-primary flex items-center gap-3 uppercase tracking-tighter">
+                       <div className="bg-primary p-2.5 rounded-xl shadow-lg text-primary-foreground">
+                         <Database className="h-6 w-6" />
+                       </div>
+                       Media Storage & Live Gallery Hub
+                    </h3>
+                    <p className="text-[10px] font-black text-primary/60 uppercase tracking-[0.15em] ml-14">
+                      Direct Photo Uploads &bull; Auto HEIC Converter &bull; Live Shop Pricing & Metadata
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-3 bg-primary/5 dark:bg-black/20 p-3 rounded-2xl border border-primary/10 shadow-inner">
+                    <div className="flex items-center gap-2 pl-2 border-l border-primary/20 ml-1">
+                      <span className="text-[10px] font-black text-primary/60 uppercase">System Status:</span>
+                      <div className="flex items-center gap-1.5">
+                        <Badge variant="outline" className="border-emerald-500/50 text-emerald-600 dark:text-emerald-400 font-bold h-7 px-3 rounded-lg text-[9px] uppercase tracking-tighter bg-emerald-50 dark:bg-emerald-950/30">
+                          Active & Synced
+                        </Badge>
+                        <Badge className="bg-primary font-black px-3 h-7 rounded-lg shadow-md text-primary-foreground">
+                          {galleryItems?.length || 0} Assets Published
+                        </Badge>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                
+                <div className="bg-background dark:bg-black/20 rounded-3xl p-4 md:p-8 border-2 border-primary/20 shadow-xl overflow-hidden">
+                  <StorageManager 
+                    albumSuggestions={Array.from(new Set(galleryItems?.map((item: any) => item.album).filter(Boolean)))} 
+                    galleryItems={galleryItems || []}
+                  />
+                </div>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
+
+      {/* Secondary: Google Photos Section */}
       <Collapsible open={isGooglePhotosOpen} onOpenChange={setIsGooglePhotosOpen}>
         <Card className="bg-background dark:bg-primary/10 border-primary/30 dark:border-primary/50 shadow-xl border-t-8 border-t-primary">
           <CardHeader className="flex flex-row items-center justify-between space-y-0">
@@ -180,61 +243,6 @@ export function GalleryTab({
           </CollapsibleContent>
         </Card>
       </Collapsible>
-
-      {/* Unified Custom Gallery Hub - System Explorer */}
-      <Collapsible open={isMainArchiveOpen} onOpenChange={setIsMainArchiveOpen}>
-        <Card className="bg-background dark:bg-indigo-950/20 border-indigo-200 dark:border-indigo-800 shadow-2xl border-t-8 border-t-primary overflow-hidden">
-          <CardHeader className="border-b border-border/50 flex flex-row items-center justify-between space-y-0">
-            <div className="space-y-1.5">
-              <CardTitle className="text-primary font-black text-3xl tracking-tight">Main Project Archive & System Explorer</CardTitle>
-              <CardDescription className="text-muted-foreground font-bold uppercase tracking-widest text-[10px]">Photo gallery archives and artwork storage metadata management (Upload Center disabled).</CardDescription>
-            </div>
-            <CollapsibleTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-10 w-10 rounded-full hover:bg-primary/10">
-                {isMainArchiveOpen ? <ChevronUp className="h-6 w-6" /> : <ChevronDown className="h-6 w-6" />}
-              </Button>
-            </CollapsibleTrigger>
-          </CardHeader>
-          <CollapsibleContent>
-            <CardContent className="p-8 text-black dark:text-white">
-              <div className="space-y-8">
-                <div className="flex flex-col md:flex-row md:items-center justify-between border-b-4 border-primary/10 pb-6 gap-4">
-                  <div className="space-y-1">
-                    <h3 className="text-3xl font-black text-primary flex items-center gap-3 uppercase tracking-tighter">
-                       <div className="bg-primary p-2 rounded-xl shadow-lg">
-                         <Database className="h-6 w-6 text-primary-foreground" />
-                       </div>
-                       Production Archive Explorer
-                    </h3>
-                    <p className="text-[10px] font-black text-primary/40 uppercase tracking-[0.2em] ml-14">Central Repository & Metadata Synchronization (Note: Image upload center removed)</p>
-                  </div>
-
-                  <div className="flex flex-wrap items-center gap-3 bg-primary/5 dark:bg-black/20 p-3 rounded-2xl border border-primary/10 shadow-inner">
-                    <div className="flex items-center gap-2 pl-2 border-l border-primary/20 ml-1">
-                      <span className="text-[10px] font-black text-primary/40 uppercase">Archive Health:</span>
-                      <div className="flex items-center gap-1.5">
-                        <Badge variant="outline" className="border-primary/30 text-primary font-bold h-7 px-3 rounded-lg text-[9px] uppercase tracking-tighter">
-                          Verified Sync
-                        </Badge>
-                        <Badge className="bg-primary font-black px-3 h-7 rounded-lg shadow-md text-primary-foreground">
-                          {galleryItems?.length || 0} Assets
-                        </Badge>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                
-                <div className="bg-background dark:bg-black/20 rounded-3xl p-8 border-2 border-primary/10 shadow-xl overflow-hidden">
-                  <StorageManager 
-                    albumSuggestions={Array.from(new Set(galleryItems?.map((item: any) => item.album).filter(Boolean)))} 
-                    galleryItems={galleryItems || []}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </CollapsibleContent>
-        </Card>
-      </Collapsible>
-</div>
+    </div>
   );
 }

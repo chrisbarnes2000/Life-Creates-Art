@@ -1,6 +1,8 @@
 {
-  "name": "minibarnmaster",
-  "version": "0.2.5",
+  "name": "life-creates-art",
+  "version": "1.0.0",
+  "description": "LifeCreatesArt - Fine art portfolio and creative showcase platform by Tina Croft Barnes. Webmaster & Founder of RapportVerse: Chris Barnes (rapprt.space).",
+  "author": "Tina Croft Barnes & Chris Barnes (Webmaster)",
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
@@ -9,7 +11,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "node --import tsx --test tests/unit/*.test.ts"
   },
   "dependencies": {
     "@genkit-ai/google-genai": "^1.28.0",
@@ -72,80 +75,6 @@
     "typescript": "^5"
   },
   "overrides": {
-    "next-themes": {
-      "react": "$react",
-      "react-dom": "$react-dom"
-    },
-    "recharts": {
-      "react": "$react",
-      "react-dom": "$react-dom"
-    },
-    "embla-carousel-react": {
-      "react": "$react"
-    },
-    "@radix-ui/react-accordion": {
-      "react": "$react"
-    },
-    "@radix-ui/react-alert-dialog": {
-      "react": "$react"
-    },
-    "@radix-ui/react-avatar": {
-      "react": "$react"
-    },
-    "@radix-ui/react-checkbox": {
-      "react": "$react"
-    },
-    "@radix-ui/react-collapsible": {
-      "react": "$react"
-    },
-    "@radix-ui/react-dialog": {
-      "react": "$react"
-    },
-    "@radix-ui/react-dropdown-menu": {
-      "react": "$react"
-    },
-    "@radix-ui/react-label": {
-      "react": "$react"
-    },
-    "@radix-ui/react-menubar": {
-      "react": "$react"
-    },
-    "@radix-ui/react-popover": {
-      "react": "$react"
-    },
-    "@radix-ui/react-progress": {
-      "react": "$react"
-    },
-    "@radix-ui/react-radio-group": {
-      "react": "$react"
-    },
-    "@radix-ui/react-scroll-area": {
-      "react": "$react"
-    },
-    "@radix-ui/react-select": {
-      "react": "$react"
-    },
-    "@radix-ui/react-separator": {
-      "react": "$react"
-    },
-    "@radix-ui/react-slider": {
-      "react": "$react"
-    },
-    "@radix-ui/react-slot": {
-      "react": "$react"
-    },
-    "@radix-ui/react-switch": {
-      "react": "$react"
-    },
-    "@radix-ui/react-tabs": {
-      "react": "$react"
-    },
-    "@radix-ui/react-toast": {
-      "react": "$react"
-    },
-    "@radix-ui/react-tooltip": {
-      "react": "$react"
-    },
     "node-domexception": "npm:domexception@4.0.0"
   }
 }

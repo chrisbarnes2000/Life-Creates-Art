@@ -442,13 +442,29 @@ export default function AdminPage() {
           )}
         </div>
 
-        <Tabs defaultValue="settings" className="w-full">
-          <TabsList className="flex flex-wrap h-auto w-full mb-8 gap-2 bg-primary/10 dark:bg-primary/20 p-2 rounded-xl border border-primary/20">
-            <TabsTrigger className="flex-1 min-w-[120px] rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-bold" value="gallery"><ImageIcon className="mr-2 h-4 w-4" /> Archive & Media</TabsTrigger>
-            <TabsTrigger className="flex-1 min-w-[120px] rounded-lg data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-bold" value="settings"><SettingsIcon className="mr-2 h-4 w-4" /> Configuration & Operations</TabsTrigger>
+        <Tabs defaultValue="gallery" className="w-full">
+          <TabsList className="flex flex-wrap h-auto w-full mb-8 gap-2 bg-primary/10 dark:bg-primary/20 p-2 rounded-2xl border-2 border-primary/30 shadow-lg">
+            <TabsTrigger 
+              id="radix-:r30:-trigger-gallery"
+              className="flex-1 min-w-[200px] py-3.5 px-6 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-black text-sm shadow-md transition-all flex items-center justify-center gap-2 border-2 border-transparent data-[state=active]:border-primary" 
+              value="gallery"
+            >
+              <ImageIcon className="h-5 w-5" />
+              <span>Archive & Media Management</span>
+              <span className="ml-1.5 px-2 py-0.5 rounded-full bg-emerald-500 text-white font-black text-[10px] uppercase tracking-wider shadow-sm">
+                Primary Uploads
+              </span>
+            </TabsTrigger>
+            <TabsTrigger 
+              className="flex-1 min-w-[200px] py-3.5 px-6 rounded-xl data-[state=active]:bg-primary data-[state=active]:text-primary-foreground font-bold text-sm transition-all flex items-center justify-center gap-2" 
+              value="settings"
+            >
+              <SettingsIcon className="h-5 w-5" />
+              <span>Configuration & Operations</span>
+            </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="gallery">
+          <TabsContent value="gallery" id="radix-:r30:-content-gallery" className="space-y-8">
             <div className="space-y-8">
               <AssetsTab 
                 heroCarouselDoc={heroCarouselDoc} 

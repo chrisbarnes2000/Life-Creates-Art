@@ -1,0 +1,129 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <defs>
+    <!-- Light Mode Gradients -->
+    <linearGradient id="bgLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff" />
+      <stop offset="100%" stop-color="#f0fdfa" />
+    </linearGradient>
+    <linearGradient id="paintLight" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0f766e" />
+      <stop offset="45%" stop-color="#0d9488" />
+      <stop offset="100%" stop-color="#14b8a6" />
+    </linearGradient>
+    <linearGradient id="goldLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#f59e0b" />
+      <stop offset="60%" stop-color="#d97706" />
+      <stop offset="100%" stop-color="#b45309" />
+    </linearGradient>
+    <linearGradient id="lensLight" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0d9488" stop-opacity="0.15" />
+      <stop offset="100%" stop-color="#134e4a" stop-opacity="0.05" />
+    </linearGradient>
+
+    <!-- Dark Mode Gradients -->
+    <linearGradient id="bgDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0a1f1b" />
+      <stop offset="100%" stop-color="#040d0b" />
+    </linearGradient>
+    <linearGradient id="paintDark" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0d9488" />
+      <stop offset="50%" stop-color="#2dd4bf" />
+      <stop offset="100%" stop-color="#5eead4" />
+    </linearGradient>
+    <linearGradient id="goldDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde68a" />
+      <stop offset="50%" stop-color="#fbbf24" />
+      <stop offset="100%" stop-color="#f59e0b" />
+    </linearGradient>
+    <linearGradient id="lensDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#2dd4bf" stop-opacity="0.22" />
+      <stop offset="100%" stop-color="#115e59" stop-opacity="0.08" />
+    </linearGradient>
+
+    <!-- Soft Glow Filter -->
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+
+  <style>
+    .plate { fill: url(#bgLight); stroke: #99f6e4; }
+    .paint { fill: url(#paintLight); }
+    .gold { fill: url(#goldLight); }
+    .lens { fill: url(#lensLight); stroke: #0d9488; }
+    .sparkle { fill: #d97706; }
+    .aperture-group { fill: #0d9488; opacity: 0.35; }
+    .ring-stroke { stroke: #0d9488; }
+    .core-focus { stroke: #0d9488; fill: none; }
+    .core-dot { fill: #0d9488; }
+
+    @media (prefers-color-scheme: dark) {
+      .plate { fill: url(#bgDark); stroke: #134e4a; }
+      .paint { fill: url(#paintDark); }
+      .gold { fill: url(#goldDark); }
+      .lens { fill: url(#lensDark); stroke: #2dd4bf; }
+      .sparkle { fill: #fde68a; }
+      .aperture-group { fill: #2dd4bf; opacity: 0.55; }
+      .ring-stroke { stroke: #2dd4bf; }
+      .core-focus { stroke: #2dd4bf; }
+      .core-dot { fill: #2dd4bf; }
+    }
+  </style>
+
+  <!-- Base Plate (Squircle with explicit presentation attribute fallback) -->
+  <rect class="plate" x="16" y="16" width="480" height="480" rx="116" fill="url(#bgLight)" stroke="#99f6e4" stroke-width="10" />
+
+  <!-- Camera Aperture & Geometry Ring -->
+  <g transform="translate(256, 256)">
+    <circle r="160" class="ring-stroke" fill="none" stroke="#0d9488" stroke-width="3" opacity="0.2" stroke-dasharray="6 8" />
+    <circle r="144" class="ring-stroke" fill="none" stroke="#0d9488" stroke-width="2" opacity="0.35" />
+    <circle r="126" class="lens" fill="url(#lensLight)" stroke="#0d9488" stroke-width="5" />
+
+    <g class="aperture-group" fill="#0d9488" opacity="0.35">
+      <path d="M 0 -126 L 56 -56 A 126 126 0 0 0 0 -126 Z" />
+      <path d="M 109 -63 L 56 38 A 126 126 0 0 0 109 -63 Z" />
+      <path d="M 109 63 L 0 96 A 126 126 0 0 0 109 63 Z" />
+      <path d="M 0 126 L -56 56 A 126 126 0 0 0 0 126 Z" />
+      <path d="M -109 63 L -56 -38 A 126 126 0 0 0 -109 63 Z" />
+      <path d="M -109 -63 L 0 -96 A 126 126 0 0 0 -109 -63 Z" />
+    </g>
+
+    <circle r="38" class="core-focus" fill="none" stroke="#0d9488" stroke-width="4" opacity="0.8" />
+    <circle r="14" class="core-dot" fill="#0d9488" opacity="0.65" />
+  </g>
+
+  <!-- Fine Art Paintbrush Sweep -->
+  <path class="paint" fill="url(#paintLight)" filter="url(#glow)" d="
+    M 124 384
+    C 146 328, 186 274, 246 226
+    C 304 178, 362 138, 398 112
+    C 384 146, 350 202, 288 260
+    C 226 318, 168 372, 124 384
+    Z
+  " />
+
+  <!-- Gold Dynamic Ribbon -->
+  <path class="gold" fill="url(#goldLight)" d="
+    M 108 400
+    C 134 362, 194 322, 274 262
+    C 324 224, 368 178, 388 138
+    C 376 158, 338 206, 280 258
+    C 212 320, 148 374, 108 400
+    Z
+  " />
+
+  <!-- Artist Brush Tip Accent -->
+  <g transform="translate(396, 116)">
+    <path class="gold" fill="url(#goldLight)" d="M -8 18 L 18 -8 C 24 -14, 30 -6, 24 2 L 2 24 Z" />
+    <path class="sparkle" fill="#d97706" d="M 18 -20 Q 24 -10 34 -10 Q 24 -10 18 0 Q 18 -10 8 -10 Q 18 -10 18 -20 Z" />
+  </g>
+
+  <!-- Secondary Sparkle -->
+  <g transform="translate(150, 290) scale(0.65)">
+    <path class="sparkle" fill="#d97706" d="M 0 -18 Q 6 -6 18 -6 Q 6 -6 0 6 Q 0 -6 -12 -6 Q 0 -6 0 -18 Z" opacity="0.8" />
+  </g>
+
+  <!-- Grounding Paint Drop -->
+  <circle cx="118" cy="394" r="13" class="gold" fill="url(#goldLight)" />
+</svg>

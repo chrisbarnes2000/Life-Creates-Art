@@ -2,12 +2,23 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { useCollection, useFirebase, useMemoFirebase, useDoc } from '@/firebase';
+import { useCollection, useFirebase, useMemoFirebase, useDoc, addDocumentNonBlocking } from '@/firebase';
 import { collection, query, orderBy, doc } from 'firebase/firestore';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Loader2, ImageIcon, FolderOpen, ArrowLeft, ExternalLink, Image as ImageIcon2, Share2, ChevronLeft, ChevronRight, Plus, Share, Clock } from 'lucide-react';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription, 
+  DialogFooter 
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+import { Loader2, ImageIcon, FolderOpen, ArrowLeft, ExternalLink, Image as ImageIcon2, Share2, ChevronLeft, ChevronRight, Plus, Share, Clock, Play } from 'lucide-react';
 import { useInView } from 'react-intersection-observer';
 import demoData from '@/lib/placeholder-images';
 import { useSearchParams, useRouter } from 'next/navigation';
@@ -111,7 +122,9 @@ function GoogleAlbumCard({
   return (
     <Card 
       ref={ref}
-      className="group cursor-pointer overflow-hidden border-none shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+      onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+      onDragStart={(e) => e.preventDefault()}
+      className="group cursor-pointer overflow-hidden border-none shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 select-none"
       onClick={() => onSelect({ 
         type: 'google', 
         id: album.id, 
@@ -121,13 +134,13 @@ function GoogleAlbumCard({
       })}
     >
       <CardContent className="p-0">
-        <div className="relative aspect-[4/3] w-full bg-muted/30">
+        <div className="relative aspect-[4/3] w-full bg-muted/35 overflow-hidden">
           <Image
             src={coverSrc}
             alt={album.name}
             fill
             unoptimized
-            className={`object-cover transition-opacity duration-300 pointer-events-none ${loading ? 'opacity-50' : 'opacity-100'}`}
+            className={`object-cover transition-transform duration-700 group-hover:scale-110 pointer-events-none ${loading ? 'opacity-50' : 'opacity-100'}`}
             onDragStart={(e) => e.preventDefault()}
             sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
             onError={(e: any) => {
@@ -182,11 +195,195 @@ const formatDate = (dateValue: any) => {
   });
 };
 
+const isVideoUrl = (url: string) => {
+  if (!url || typeof url !== 'string') return false;
+  const lower = url.toLowerCase();
+  return lower.endsWith('.mp4') || lower.endsWith('.mov') || lower.endsWith('.webm') || lower.endsWith('.m4v') || lower.includes('video');
+};
+
+const isHeicUrl = (url: string) => {
+  if (!url || typeof url !== 'string') return false;
+  const lower = url.toLowerCase();
+  return lower.endsWith('.heic') || lower.endsWith('.heif') || lower.includes('heic');
+};
+
+const handleImageError = (e: any) => {
+  const currentSrc = e.currentTarget.src;
+  if (currentSrc && (currentSrc.toLowerCase().includes('.heic') || currentSrc.toLowerCase().includes('.heif'))) {
+    e.currentTarget.src = currentSrc.replace(/\.heic/i, '.jpg').replace(/\.heif/i, '.jpg');
+  } else {
+    e.currentTarget.src = "https://placehold.co/800x600/1e293b/e2e8f0?text=Mac+Compatible+Preview";
+  }
+};
+
+interface ChromiumSafeVideoPlayerProps {
+  src: string;
+  className?: string;
+  onError: () => void;
+}
+
+function ChromiumSafeVideoPlayer({ src, className, onError }: ChromiumSafeVideoPlayerProps) {
+  const [localUrl, setLocalUrl] = React.useState<string | null>(null);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [progress, setProgress] = React.useState(0);
+  const [failedDirectly, setFailedDirectly] = React.useState(false);
+  
+  const localUrlRef = React.useRef<string | null>(null);
+
+  React.useEffect(() => {
+    return () => {
+      if (localUrlRef.current) {
+        URL.revokeObjectURL(localUrlRef.current);
+      }
+    };
+  }, []);
+
+  const startBlobFetch = async () => {
+    if (isLoading) return;
+    setIsLoading(true);
+    setProgress(0);
+    try {
+      const response = await fetch(src);
+      if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+      
+      const reader = response.body?.getReader();
+      const contentLength = +(response.headers.get('Content-Length') || '0');
+      
+      if (!reader) {
+        const blob = await response.blob();
+        const url = URL.createObjectURL(blob);
+        localUrlRef.current = url;
+        setLocalUrl(url);
+        setIsLoading(false);
+        return;
+      }
+
+      let receivedLength = 0;
+      const chunks: Uint8Array[] = [];
+      
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+        if (value) {
+          chunks.push(value);
+          receivedLength += value.length;
+          if (contentLength > 0) {
+            setProgress(Math.round((receivedLength / contentLength) * 100));
+          }
+        }
+      }
+
+      const mimeType = response.headers.get('Content-Type') || 'video/mp4';
+      const blob = new Blob(chunks, { type: mimeType });
+      const url = URL.createObjectURL(blob);
+      localUrlRef.current = url;
+      setLocalUrl(url);
+    } catch (err) {
+      console.error("Chromium-safe blob transcoding fallback failed:", err);
+      onError();
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleInitialVideoError = () => {
+    if (!failedDirectly) {
+      setFailedDirectly(true);
+      startBlobFetch();
+    } else {
+      onError();
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="absolute inset-0 bg-black/85 flex flex-col items-center justify-center p-4 text-center z-10 rounded-t-xl">
+        <div className="relative h-8 w-8 animate-spin rounded-full border-2 border-primary/20 border-t-primary" />
+        <p className="text-white text-xs font-bold mt-3">Optimizing Playback for Chrome...</p>
+        <p className="text-zinc-400 text-[10px] font-semibold mt-1">Buffering: {progress}%</p>
+      </div>
+    );
+  }
+
+  const activeSrc = localUrl || src;
+
+  return (
+    <video
+      src={activeSrc}
+      autoPlay
+      loop
+      muted
+      playsInline
+      preload="auto"
+      crossOrigin="anonymous"
+      controls
+      controlsList="nodownload"
+      onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+      onError={handleInitialVideoError}
+      className={className}
+    />
+  );
+}
+
 export function PhotoGallery() {
   const { firestore } = useFirebase();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { toast } = useToast();
+  const [videoFailed, setVideoFailed] = React.useState<Record<string, boolean>>({});
+  const [orderModalOpen, setOrderModalOpen] = React.useState(false);
+  const [selectedPrint, setSelectedPrint] = React.useState<any | null>(null);
+  const [orderName, setOrderName] = React.useState('');
+  const [orderEmail, setOrderEmail] = React.useState('');
+  const [orderPhone, setOrderPhone] = React.useState('');
+  const [orderNotes, setOrderNotes] = React.useState('');
+  const [isSubmittingOrder, setIsSubmittingOrder] = React.useState(false);
+
+  const handleVideoError = (src: string) => {
+    setVideoFailed(prev => ({ ...prev, [src]: true }));
+  };
+
+  const handleOrderSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!firestore || !selectedPrint) return;
+    if (!orderName.trim() || !orderEmail.trim()) {
+      toast({ variant: 'destructive', title: 'Required Fields', description: 'Please enter your name and email address.' });
+      return;
+    }
+    setIsSubmittingOrder(true);
+    try {
+      const consultationRequestsRef = collection(firestore, 'allConsultationRequests');
+      await addDocumentNonBlocking(consultationRequestsRef, {
+        name: orderName.trim(),
+        email: orderEmail.trim(),
+        phone: orderPhone.trim(),
+        configSummary: `Print Order Inquiry for "${selectedPrint.description || 'Artwork'}" (Price: ${selectedPrint.price ? `$${selectedPrint.price}` : 'Custom'}). Notes: ${orderNotes.trim() || 'None'}`,
+        requestDate: new Date().toISOString(),
+        status: 'Pending Print Order',
+        printItem: {
+          id: selectedPrint.id || 'custom',
+          description: selectedPrint.description || 'Artwork Print',
+          price: selectedPrint.price || 'Contact for Pricing',
+          imageUrl: selectedPrint.imageUrl || ''
+        }
+      });
+      toast({
+        title: 'Print Order Registered!',
+        description: `Successfully sent print inquiry for "${selectedPrint.description || 'Artwork'}" to Customer Inquiries.`
+      });
+      setOrderModalOpen(false);
+      setSelectedPrint(null);
+      setOrderName('');
+      setOrderEmail('');
+      setOrderPhone('');
+      setOrderNotes('');
+    } catch (err: any) {
+      console.error('Failed to submit print order:', err);
+      toast({ variant: 'destructive', title: 'Submission Failed', description: err.message || 'Could not register print order.' });
+    } finally {
+      setIsSubmittingOrder(false);
+    }
+  };
 
   const galleryQuery = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -632,17 +829,19 @@ export function PhotoGallery() {
                 {customAlbums.map((album) => (
                   <Card 
                     key={album.name} 
-                    className="w-full sm:w-[300px] md:w-[340px] group cursor-pointer overflow-hidden border-none shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
+                    onContextMenu={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                    onDragStart={(e) => e.preventDefault()}
+                    className="w-full sm:w-[300px] md:w-[340px] group cursor-pointer overflow-hidden border-none shadow-sm hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 select-none"
                     onClick={() => handleSelectAlbum({ type: 'custom', name: album.name })}
                   >
                     <CardContent className="p-0">
-                      <div className="relative aspect-[4/3] w-full">
+                      <div className="relative aspect-[4/3] w-full overflow-hidden">
                         <Image
                            src={album.coverImage || 'https://placehold.co/800x600/e2e8f0/1e293b?text=Collection'}
                            alt={album.name}
                            fill
                            unoptimized
-                           className="object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"
+                           className="object-cover transition-transform duration-700 group-hover:scale-110 pointer-events-none"
                            onDragStart={(e) => e.preventDefault()}
                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                            onError={(e: any) => {
@@ -748,20 +947,40 @@ export function PhotoGallery() {
                     <Card key={i} className="group overflow-hidden border-none shadow-sm hover:shadow-lg transition-all duration-300 rounded-xl bg-muted/20">
                       <CardContent className="p-0">
                         <div className="relative aspect-[4/3] w-full">
-                          <Image
-                            src={url as string}
-                            alt={`Google Photo ${((currentPage - 1) * (itemsPerPage === 'all' ? 0 : itemsPerPage)) + i + 1}`}
-                            fill
-                            loading="lazy"
-                            unoptimized
-                            className="object-cover cursor-pointer pointer-events-none"
-                            referrerPolicy="no-referrer"
-                            onDragStart={(e) => e.preventDefault()}
-                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                            onError={(e: any) => {
-                              e.currentTarget.src = "https://placehold.co/800x600/e2e8f0/1e293b?text=Asset+Unavailable";
-                            }}
-                          />
+                          {isVideoUrl(url as string) && !videoFailed[url as string] ? (
+                            <ChromiumSafeVideoPlayer
+                              src={url as string}
+                              className="w-full h-full object-cover"
+                              onError={() => handleVideoError(url as string)}
+                            />
+                          ) : isVideoUrl(url as string) ? (
+                            <div className="w-full h-full bg-black/90 flex flex-col items-center justify-center p-4 text-center">
+                              <p className="text-white text-xs font-bold mb-2">Video Stream / iOS Codec Fallback</p>
+                              <Button size="sm" asChild className="bg-primary text-white text-[10px]">
+                                <a href={selectedAlbum.url} target="_blank" rel="noopener noreferrer">
+                                  Open Album Video on Google Photos
+                                </a>
+                              </Button>
+                            </div>
+                          ) : (
+                            <Image
+                              src={url as string}
+                              alt={`Google Photo ${((currentPage - 1) * (itemsPerPage === 'all' ? 0 : itemsPerPage)) + i + 1}`}
+                              fill
+                              loading="lazy"
+                              unoptimized
+                              className="object-cover cursor-pointer pointer-events-none"
+                              referrerPolicy="no-referrer"
+                              onDragStart={(e) => e.preventDefault()}
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                              onError={handleImageError}
+                            />
+                          )}
+                          {isHeicUrl(url as string) && (
+                            <span className="absolute bottom-3 left-3 bg-blue-600/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-md z-10">
+                              HEIC Fallback Preview Active
+                            </span>
+                          )}
                           {renderWatermark()}
                         </div>
                       </CardContent>
@@ -842,56 +1061,93 @@ export function PhotoGallery() {
               
               <div id="gallery-photos-grid" className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                 {paginatedPhotos.length > 0 ? paginatedPhotos.map((img: any) => (
-                  <Card key={img.id} className="group overflow-hidden border-none shadow-md hover:shadow-xl transition-shadow duration-300 rounded-xl">
-                    <CardContent className="p-0">
-                      <div className="relative aspect-[4/3] w-full overflow-hidden">
-                        <Image
-                          src={img.imageUrl || 'https://placehold.co/800x600/e2e8f0/1e293b?text=Image'}
-                          alt={img.description}
-                          fill
-                          loading="lazy"
-                          unoptimized
-                          className="object-cover transition-transform duration-500 group-hover:scale-110 pointer-events-none"
-                          onDragStart={(e) => e.preventDefault()}
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                          onError={(e: any) => {
-                            e.currentTarget.src = "https://placehold.co/800x600/e2e8f0/1e293b?text=Broken+Asset";
-                          }}
-                        />
+                  <Card key={img.id} className="group overflow-hidden border border-zinc-100 dark:border-zinc-800 shadow-sm hover:shadow-lg transition-all duration-300 rounded-xl flex flex-col h-full bg-zinc-50/40 dark:bg-zinc-900/20">
+                    <CardContent className="p-0 flex flex-col h-full flex-grow">
+                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-muted/20 rounded-t-xl shadow-inner shrink-0">
+                        {isVideoUrl(img.imageUrl) && !videoFailed[img.imageUrl] ? (
+                          <ChromiumSafeVideoPlayer
+                            src={img.imageUrl}
+                            className="w-full h-full object-cover"
+                            onError={() => handleVideoError(img.imageUrl)}
+                          />
+                        ) : isVideoUrl(img.imageUrl) ? (
+                          <div className="w-full h-full bg-black/90 flex flex-col items-center justify-center p-4 text-center">
+                            <p className="text-white text-xs font-bold mb-2">Video Stream Fallback</p>
+                            <Button size="sm" asChild className="bg-primary text-white text-[10px]">
+                              <a href={img.imageUrl} target="_blank" rel="noopener noreferrer">
+                                Open Video Stream Directly
+                              </a>
+                            </Button>
+                          </div>
+                        ) : (
+                          <Image
+                            src={img.imageUrl || 'https://placehold.co/800x600/e2e8f0/1e293b?text=Image'}
+                            alt={img.description}
+                            fill
+                            loading="lazy"
+                            unoptimized
+                            className="object-cover transition-transform duration-500 group-hover:scale-105 pointer-events-none"
+                            onDragStart={(e) => e.preventDefault()}
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                            onError={handleImageError}
+                          />
+                        )}
+                        {isHeicUrl(img.imageUrl) && (
+                          <span className="absolute bottom-3 left-3 bg-blue-600/90 backdrop-blur-md text-white text-[9px] font-bold px-2 py-0.5 rounded shadow-md z-10">
+                            HEIC Fallback Preview Active
+                          </span>
+                        )}
                         {renderWatermark()}
-                        <div className="absolute inset-0 flex flex-col justify-between bg-gradient-to-t from-black/80 via-black/20 to-transparent p-6 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
-                           <div className="absolute top-4 right-4 flex flex-col items-end gap-1.5">
-                              {img.price && (
-                                <span className="bg-emerald-600 text-white px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider shadow-sm">
-                                  ${img.price}
-                                </span>
-                              )}
-                              <Button size="sm" className="bg-white/20 hover:bg-white/40 text-white backdrop-blur-sm text-xs font-bold" onClick={(e) => { e.stopPropagation(); toast({ title: "Order Prints", description: img.price ? `Order inquiry for "${img.description}" at $${img.price} is registered.` : "This feature is coming soon."})}}>
-                                Order Prints
-                              </Button>
-                           </div>
-                           <div className="transform translate-y-4 transition-transform duration-300 group-hover:translate-y-0 flex flex-col">
-                            {img.hoverText && (
-                              <p className="text-xs font-black uppercase tracking-widest text-accent-foreground mb-1 drop-shadow-sm">
-                                {img.hoverText}
-                              </p>
-                            )}
-                            <p className="text-sm font-semibold text-white drop-shadow-md">
-                              {img.description}
+                      </div>
+
+                      {/* Always Visible Static Details Footer */}
+                      <div className="p-4 flex flex-col flex-grow justify-between border-t border-zinc-100 dark:border-zinc-850">
+                        <div className="space-y-1.5">
+                          {img.hoverText && (
+                            <p className="text-[10px] font-black uppercase tracking-widest text-primary/70 line-clamp-1">
+                              {img.hoverText}
                             </p>
+                          )}
+                          <p className="text-sm font-semibold text-zinc-900 dark:text-zinc-100 line-clamp-1" title={img.description}>
+                            {img.description}
+                          </p>
+                          <div className="flex flex-col gap-1 pt-1">
                             {img.uploadDate && (
-                              <p className="text-[10px] text-white/70 font-semibold mt-1.5 flex items-center gap-1">
-                                <Clock className="h-3 w-3 text-accent" />
+                              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-semibold flex items-center gap-1">
+                                <Clock className="h-3 w-3 text-zinc-400" />
                                 Uploaded: {formatDate(img.uploadDate)}
                               </p>
                             )}
                             {img.lastUpdated && formatDate(img.lastUpdated) !== formatDate(img.uploadDate) && (
-                              <p className="text-[10px] text-white/70 font-semibold mt-0.5 flex items-center gap-1">
-                                <Clock className="h-3 w-3 text-accent" />
+                              <p className="text-[10px] text-zinc-500 dark:text-zinc-400 font-semibold flex items-center gap-1">
+                                <Clock className="h-3 w-3 text-zinc-400" />
                                 Modified: {formatDate(img.lastUpdated)}
                               </p>
                             )}
                           </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-3 mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800">
+                          <div className="min-w-0">
+                            {img.price ? (
+                              <span className="bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 px-2 py-1 rounded text-xs font-black tracking-wide border border-emerald-200/50 dark:border-emerald-900/50 inline-block">
+                                ${img.price}
+                              </span>
+                            ) : (
+                              <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-semibold italic">Custom Print</span>
+                            )}
+                          </div>
+                          <Button 
+                            size="sm" 
+                            className="bg-primary hover:bg-primary/90 text-primary-foreground text-xs font-bold shadow-sm h-8 shrink-0 px-3" 
+                            onClick={(e) => { 
+                              e.stopPropagation(); 
+                              setSelectedPrint(img); 
+                              setOrderModalOpen(true); 
+                            }}
+                          >
+                            Order Prints
+                          </Button>
                         </div>
                       </div>
                     </CardContent>
@@ -942,6 +1198,49 @@ export function PhotoGallery() {
           )}
         </div>
       )}
+      {/* Order Print Dialog */}
+      <Dialog open={orderModalOpen} onOpenChange={setOrderModalOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Order Fine Art Print Inquiry</DialogTitle>
+            <DialogDescription>
+              {selectedPrint?.description ? `Requesting print for "${selectedPrint.description}"` : 'Requesting print inquiry'} {selectedPrint?.price ? `($${selectedPrint.price})` : ''}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleOrderSubmit} className="space-y-4 py-2">
+            {selectedPrint?.imageUrl && (
+              <div className="relative aspect-video w-full rounded-lg overflow-hidden bg-muted">
+                <Image src={selectedPrint.imageUrl} alt="Preview" fill className="object-cover" referrerPolicy="no-referrer" unoptimized />
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label htmlFor="orderName">Your Name *</Label>
+              <Input id="orderName" value={orderName} onChange={(e) => setOrderName(e.target.value)} placeholder="Full Name" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="orderEmail">Email Address *</Label>
+              <Input id="orderEmail" type="email" value={orderEmail} onChange={(e) => setOrderEmail(e.target.value)} placeholder="name@example.com" required />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="orderPhone">Phone Number</Label>
+              <Input id="orderPhone" type="tel" value={orderPhone} onChange={(e) => setOrderPhone(e.target.value)} placeholder="(555) 000-0000" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="orderNotes">Print Size / Framing Instructions / Notes</Label>
+              <Textarea id="orderNotes" value={orderNotes} onChange={(e) => setOrderNotes(e.target.value)} placeholder="e.g. 16x20 Canvas, matte finish..." />
+            </div>
+            <DialogFooter className="pt-4">
+              <Button type="button" variant="outline" onClick={() => setOrderModalOpen(false)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isSubmittingOrder}>
+                {isSubmittingOrder && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Submit Print Order Inquiry
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </section>
   );
 }

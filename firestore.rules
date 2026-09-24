@@ -6,7 +6,14 @@ service cloud.firestore {
     function isSignedIn() { return request.auth != null; }
     function isAdmin() { 
       return isSignedIn() && (
-        (request.auth.token.email != null && request.auth.token.email == 'chris.barnes.2000@me.com') || 
+        (request.auth.token.email != null && (
+          request.auth.token.email.lower() == 'chris.barnes.2000@me.com' ||
+          request.auth.token.email.lower() == 'lifecreatesart@yahoo.com' ||
+          request.auth.token.email == 'chris.barnes.2000@me.com' ||
+          request.auth.token.email == 'Chris.Barnes.2000@me.com' ||
+          request.auth.token.email == 'lifecreatesart@yahoo.com' ||
+          request.auth.token.email == 'LifeCreatesArt@yahoo.com'
+        )) || 
         (request.auth.token.admin == true)
       ); 
     }

@@ -1,0 +1,38 @@
+# LifeCreatesArt - Robots.txt & AI Bot Control Policy
+# Webmaster: Chris Barnes (Founder of RapportVerse: https://rapprt.space)
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/storage/upload/
+
+# Allow legitimate AI assistants and search discovery
+User-agent: GPTBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Block known aggressive scrapers and unauthorized training harvesters
+User-agent: CCBot
+Disallow: /
+
+User-agent: Bytespider
+Disallow: /
+
+User-agent: GPTBot-User
+Disallow: /
+
+Sitemap: https://life-creates-art.app/sitemap.xml

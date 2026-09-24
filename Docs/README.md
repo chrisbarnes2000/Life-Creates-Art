@@ -3,6 +3,8 @@
 Welcome to the internal documentation for **LifeCreatesArt**, a high-quality fine art portfolio, gallery management, and creative showcase platform for Tina Barnes.
 
 ## Documentation Navigation
+- **[RESUME_SUMMARY.md](./RESUME_SUMMARY.md)**: 1–3 minute quick resume & portfolio excerpt.
+- **[PROJECT_SUMMARY.md](./PROJECT_SUMMARY.md)**: Executive summary, features, and technical architecture.
 - **[STRUCTURE.md](./STRUCTURE.md)**: Overview of the codebase and architecture.
 - **[CHANGELOG.md](./CHANGELOG.md)**: Record of all significant updates.
 - **[INDEX_ROADMAP.md](./INDEX_ROADMAP.md)**: Future features and technical debt resolution.

@@ -2,6 +2,54 @@
 
 All notable changes to this project will be documented in this file.
 
+## [0.2.11] - 2026-09-19
+### Added
+- **Order Fine Art Prints to Customer Inquiries Integration**:
+    - Connected the "Order Prints" button on gallery items to a dedicated **Order Print Inquiry Modal**.
+    - Configured print order submissions to write directly to the standard default Firestore database (`allConsultationRequests`), seamlessly feeding into the **Customer Inquiries** section of the admin portal.
+    - Included artwork preview thumbnails, pricing, customer details (name, email, phone), and custom framing/sizing instructions in every inquiry record.
+
+## [0.2.10] - 2026-09-19
+### Enhanced
+- **Cross-Browser & AI Studio Iframe Video Autoplay Support**:
+    - Added `preload="auto"` and `crossOrigin="anonymous"` to all HTML5 `<video>` elements to ensure seamless compatibility and media loading across Chrome, Opera, and sandboxed AI Studio iframe environments.
+    - Standardized muted autoplay and loop handling for Google Photos album connections and custom MP4 uploads.
+
+## [0.2.9] - 2026-09-19
+### Added
+- **Resilient iOS & Codec Video Fallback Players**:
+    - Implemented robust error boundary handlers (`handleVideoError`) on all inline HTML5 `<video>` elements in both Google Photos and Custom galleries.
+    - Added automatic fallback UI overlays whenever mobile browsers (iOS Safari) or strict CORS/codec constraints prevent inline video streaming.
+    - Provided instant "Open Album Video on Google Photos" or "Open Video Stream Directly" action buttons to ensure videos like those in the "Recolor" album can always be played smoothly.
+
+## [0.2.8] - 2026-09-19
+### Added & Audited
+- **NASA Power of 10 & Agent Protocol Code Audit**:
+    - Completed a comprehensive system-wide code audit evaluated against NASA's 10 safety-critical coding rules and the repository's internal architecture guidelines (`AGENTS.md`).
+    - Verified deterministic control flow, bounded array collections, strict TypeScript type safety, defensive parameter validation, error boundaries, and zero-warning compiler/linter status.
+    - Created audit documentation at `/Docs/Audits/NASA_POWER_OF_10_AUDIT.md` and updated audit indexes.
+
+## [0.2.7] - 2026-09-19
+### Added & Prioritized
+- **Prioritized Archive & Media Management Hub**:
+    - Configured the admin panel (`/src/app/admin/page.tsx`) to default directly to the **Archive & Media Management** tab (`value="gallery"`) upon login, streamlining the workflow for uploading new albums and artwork to sell.
+    - Promoted the **Media Storage & Live Gallery Hub** (`StorageManager`) to the primary top position inside `GalleryTab.tsx`.
+    - Added a **Mom's Simple Upload Workflow** guide with clear step-by-step instructions directly above the drag & drop upload zone.
+    - Added dedicated **Album Path Selector & Creator** and **Artwork Sale Price ($)** fields to the upload form.
+    - Updated backend upload API (`/src/app/api/storage/upload/route.ts`) to automatically populate album names and sale prices into the Firestore gallery registry upon auto-adoption.
+    - Confirmed automatic client-side iPhone HEIC-to-JPEG conversion on direct uploads for seamless mobile photo publishing.
+
+## [0.2.6] - 2026-09-15
+### Added
+- **Resume-Ready Project Excerpt (`/Docs/RESUME_SUMMARY.md`)**:
+    - Created a 1–3 minute quick-read excerpt tailored for software engineering resumes, technical portfolio case studies, and interview discussions.
+    - Provided copy-pasteable SWE bullet points, a concise portfolio narrative paragraph, key performance metrics, and a solution-impact comparison matrix.
+- **Project Summary Documentation (`/Docs/PROJECT_SUMMARY.md`)**:
+    - Created an executive project summary markdown detailing the platform's vision, architecture, technology stack, and core functional modules.
+    - Documented the multi-album fine art gallery, dynamic date sorting, watermark protection, and consultation booking systems.
+    - Outlined the administrative asset management pipeline, including resilient batch uploads, client-side Apple HEIC conversion (`heic2any`), canvas image compression, GCS persistent tokenization, and self-healing Firestore integrity repairs.
+    - Updated project documentation indexes across `/Docs/README.md` and `/README.md`.
+
 ## [0.2.5] - 2026-08-07
 ### Added
 - **Client-Side HEIC-to-JPEG Image Conversion**:
