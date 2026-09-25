@@ -1,3 +1,5 @@
+import { GalleryItem } from '@/lib/types';
+
 export type ImagePlaceholder = {
   id: string;
   description: string;
@@ -50,7 +52,7 @@ export const PlaceHolderImages: ImagePlaceholder[] = [
   }
 ];
 
-export const fallbackGallery = [
+export const fallbackGallery: GalleryItem[] = [
   { id: "f1", imageUrl: "https://picsum.photos/seed/shed1/600/400", description: "Custom Gable Shed in Seattle" },
   { id: "f2", imageUrl: "https://picsum.photos/seed/shed2/600/400", description: "Garden Storage Unit - Sumner" },
   { id: "f3", imageUrl: "https://picsum.photos/seed/shed3/600/400", description: "Workshop with Double Doors" },

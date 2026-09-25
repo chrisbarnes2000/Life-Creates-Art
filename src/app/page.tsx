@@ -19,6 +19,7 @@ const TestimonialForm = dynamic(() => import('@/components/testimonial-form').th
 });
 
 import { AboutUs } from '@/components/about-us';
+import { FloatingUploadButton } from '@/components/floating-upload-button';
 import Image from 'next/image';
 import { PlaceHolderImages } from '@/lib/placeholder-images';
 import { useDoc, useFirebase, useMemoFirebase } from '@/firebase';
@@ -45,7 +46,11 @@ export default function Home() {
   const showTestimonials = testimonialsConfig?.enabled !== false;
 
   // Hero Image Cycling Logic
-  const heroSlides = React.useMemo(() => {
+  type Slide = {
+    url: string;
+    credit: string;
+  };
+  const heroSlides: Slide[] = React.useMemo(() => {
     if (heroCarouselConfig?.slides && heroCarouselConfig.slides.length > 0) {
       return heroCarouselConfig.slides.map((slide: any) => {
         if (slide.url && slide.url.includes('worldlandscapearchitect.com')) {
@@ -155,6 +160,7 @@ export default function Home() {
             </div>
           </>
         )}
+        <FloatingUploadButton />
       </main>
       <Footer />
     </div>

@@ -3,7 +3,32 @@ import * as React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Loader2, Folder, File, Edit2, Check, X, FolderPlus, Trash2, ExternalLink, Database, RefreshCw, ShieldCheck, Link2, Eye, EyeOff, LayoutPanelLeft, FileText, ImageIcon, LayoutGrid, CheckSquare, Square, Trash, FolderArchive, ArrowRightLeft, Upload } from 'lucide-react';
+import { compressImage, convertHeicIfNecessary, getFriendlyDisplayName } from '@/components/storage/storage-utils';
+import { 
+  Database, 
+  Eye, 
+  EyeOff, 
+  ShieldCheck, 
+  LayoutGrid, 
+  Loader2, 
+  RefreshCw, 
+  Upload, 
+  ArrowRightLeft, 
+  FolderArchive, 
+  Trash, 
+  Folder, 
+  FolderPlus, 
+  Check, 
+  X, 
+  FileText, 
+  File, 
+  LayoutPanelLeft, 
+  Link2, 
+  Edit2, 
+  Trash2, 
+  ImageIcon 
+} from 'lucide-react';
+import { UploadZone } from '@/components/storage/upload-zone';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
@@ -33,110 +58,6 @@ import {
 let sessionFileCache: string[] | null = null;
 let sessionBucketCache: string = '';
 
-function compressImage(file: File, maxWidth = 1920, maxHeight = 1920, quality = 0.82): Promise<File> {
-  return new Promise((resolve) => {
-    if (!file.type.startsWith('image/')) {
-      resolve(file);
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = (event) => {
-      const img = new Image();
-      img.src = event.target?.result as string;
-      img.onload = () => {
-        let width = img.width;
-        let height = img.height;
-
-        if (width > maxWidth || height > maxHeight) {
-          if (width > height) {
-            height = Math.round((height * maxWidth) / width);
-            width = maxWidth;
-          } else {
-            width = Math.round((width * maxHeight) / height);
-            height = maxHeight;
-          }
-        }
-
-        const canvas = document.createElement('canvas');
-        canvas.width = width;
-        canvas.height = height;
-        const ctx = canvas.getContext('2d');
-        if (!ctx) {
-          resolve(file);
-          return;
-        }
-
-        ctx.drawImage(img, 0, 0, width, height);
-        canvas.toBlob(
-          (blob) => {
-            if (!blob) {
-              resolve(file);
-              return;
-            }
-            const compressedFile = new File([blob], file.name, {
-              type: file.type,
-              lastModified: Date.now(),
-            });
-            resolve(compressedFile);
-          },
-          file.type,
-          quality
-        );
-      };
-      img.onerror = () => resolve(file);
-    };
-    reader.onerror = () => resolve(file);
-  });
-}
-
-async function convertHeicIfNecessary(file: File): Promise<File> {
-  const isHEIC = 
-    file.type === 'image/heic' || 
-    file.type === 'image/heif' || 
-    file.name.toLowerCase().endsWith('.heic') || 
-    file.name.toLowerCase().endsWith('.heif');
-  
-  if (!isHEIC) {
-    return file;
-  }
-
-  try {
-    const heic2anyModule = await import('heic2any');
-    const heic2any = heic2anyModule.default;
-    
-    const converted = await heic2any({
-      blob: file,
-      toType: 'image/jpeg',
-      quality: 0.85
-    });
-    
-    const blob = Array.isArray(converted) ? converted[0] : converted;
-    const newName = file.name.replace(/\.(heic|heif)$/i, '.jpg');
-    return new File([blob], newName, {
-      type: 'image/jpeg',
-      lastModified: Date.now()
-    });
-  } catch (error) {
-    console.error('HEIC conversion failed:', error);
-    return file;
-  }
-}
-
-function getFriendlyDisplayName(filename: string): string {
-  // Remove file extension
-  const base = filename.replace(/\.[^/.]+$/, "");
-  // Replace underscores, hyphens, and dots with spaces
-  const withSpaces = base.replace(/[_\-\.]+/g, " ");
-  // Capitalize each word
-  return withSpaces
-    .split(" ")
-    .filter(Boolean)
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(" ")
-    .trim();
-}
 
 export function StorageManager({ 
   albumSuggestions = [], 
@@ -193,156 +114,9 @@ export function StorageManager({
   }, []);
 
   // Upload States
-  const [uploadFiles, setUploadFiles] = React.useState<File[]>([]);
-  const [displayNames, setDisplayNames] = React.useState<Record<string, string>>({});
   const [uploadPath, setUploadPath] = React.useState('gallery/');
   const [uploadPrice, setUploadPrice] = React.useState('');
   const [autoAdoptUpload, setAutoAdoptUpload] = React.useState(true);
-  const [uploading, setUploading] = React.useState(false);
-  const [dragActive, setDragActive] = React.useState(false);
-
-  const handleDrag = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    if (e.type === "dragenter" || e.type === "dragover") {
-      setDragActive(true);
-    } else if (e.type === "dragleave") {
-      setDragActive(false);
-    }
-  };
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDragActive(false);
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      const droppedFiles = Array.from(e.dataTransfer.files);
-      setUploadFiles(prev => [...prev, ...droppedFiles]);
-      setDisplayNames(prev => {
-        const next = { ...prev };
-        droppedFiles.forEach(file => {
-          if (!next[file.name]) {
-            next[file.name] = getFriendlyDisplayName(file.name);
-          }
-        });
-        return next;
-      });
-    }
-  };
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const selected = Array.from(e.target.files);
-      setUploadFiles(prev => [...prev, ...selected]);
-      setDisplayNames(prev => {
-        const next = { ...prev };
-        selected.forEach(file => {
-          if (!next[file.name]) {
-            next[file.name] = getFriendlyDisplayName(file.name);
-          }
-        });
-        return next;
-      });
-    }
-  };
-
-  const removeQueuedFile = (index: number) => {
-    const fileToRemove = uploadFiles[index];
-    setUploadFiles(prev => prev.filter((_, i) => i !== index));
-    if (fileToRemove) {
-      setDisplayNames(prev => {
-        const next = { ...prev };
-        delete next[fileToRemove.name];
-        return next;
-      });
-    }
-  };
-
-  const handleUpload = async () => {
-    if (uploadFiles.length === 0) return;
-    setUploading(true);
-    let successCount = 0;
-    let failCount = 0;
-
-    try {
-      for (let i = 0; i < uploadFiles.length; i++) {
-        let file = uploadFiles[i];
-        
-        // Convert Apple HEIC/HEIF to JPEG client-side
-        try {
-          file = await convertHeicIfNecessary(file);
-        } catch (heicErr) {
-          console.warn('Failed to convert HEIC/HEIF file:', heicErr);
-        }
-
-        // Client-side compression for images > 1MB to optimize upload size/speed and prevent timeouts
-        if (file.type.startsWith('image/') && file.size > 1024 * 1024) {
-          try {
-            file = await compressImage(file);
-          } catch (compressErr) {
-            console.warn('Failed client-side compression, uploading original:', compressErr);
-          }
-        }
-
-        const formData = new FormData();
-        formData.append('file', file);
-        formData.append('path', uploadPath);
-        formData.append('autoAdopt', autoAdoptUpload ? 'true' : 'false');
-        
-        const customName = displayNames[file.name] || getFriendlyDisplayName(file.name);
-        formData.append('description', customName);
-
-        if (uploadPrice.trim()) {
-          formData.append('price', uploadPrice.trim());
-        }
-
-        try {
-          const response = await fetch('/api/storage/upload', {
-            method: 'POST',
-            body: formData,
-          });
-
-          if (response.ok) {
-            successCount++;
-          } else {
-            console.error(`Upload failed for ${file.name}:`, response.statusText);
-            failCount++;
-          }
-        } catch (fetchErr) {
-          console.error(`Network or fetch error during upload of ${file.name}:`, fetchErr);
-          failCount++;
-        }
-      }
-
-      if (successCount > 0) {
-        toast({
-          title: 'Upload Successful',
-          description: `Successfully uploaded ${successCount} file(s) ${autoAdoptUpload ? 'and registered them in gallery' : ''}.`
-        });
-        setUploadFiles([]);
-        setDisplayNames({});
-        fetchFiles(true);
-        if (onRefresh) onRefresh();
-      }
-      
-      if (failCount > 0) {
-        toast({
-          variant: 'destructive',
-          title: 'Upload Warnings',
-          description: `Failed to upload ${failCount} file(s).`
-        });
-      }
-    } catch (error) {
-      console.error('Error during batch upload:', error);
-      toast({
-        variant: 'destructive',
-        title: 'Upload Failed',
-        description: 'An unexpected error occurred during file upload.'
-      });
-    } finally {
-      setUploading(false);
-    }
-  };
 
   const existingPaths = React.useMemo(() => galleryItems.map(item => item.storagePath), [galleryItems]);
 
@@ -931,208 +705,18 @@ export function StorageManager({
           </span>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Settings & Configuration Left */}
-          <div className="lg:col-span-1 space-y-4">
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-black uppercase text-primary tracking-wide flex items-center gap-1">
-                Folder / Album Path
-              </Label>
-              <Input
-                value={uploadPath}
-                onChange={(e) => setUploadPath(e.target.value)}
-                placeholder="e.g. gallery/Barns/"
-                className="h-10 font-bold text-xs bg-background"
-              />
-              <p className="text-[9px] text-muted-foreground font-medium">Destination folder in your cloud media storage.</p>
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-black uppercase text-primary tracking-wide">
-                Print / Artwork Price ($ USD)
-              </Label>
-              <Input
-                value={uploadPrice}
-                onChange={(e) => setUploadPrice(e.target.value)}
-                placeholder="e.g. 150 (Optional)"
-                className="h-10 font-bold text-xs bg-background"
-                type="number"
-              />
-              <p className="text-[9px] text-muted-foreground font-medium">Default price shown for artwork/prints uploaded in this batch.</p>
-            </div>
-
-            {albumSuggestions.length > 0 && (
-              <div className="space-y-1.5">
-                <Label className="text-[10px] font-black uppercase text-primary/70 tracking-wider">
-                  Existing Albums:
-                </Label>
-                <div className="flex flex-wrap gap-1.5">
-                  <Badge
-                    variant="secondary"
-                    className={`cursor-pointer text-[10px] font-black py-1 px-2.5 rounded-lg transition-all ${uploadPath === 'gallery/' ? 'bg-primary text-primary-foreground shadow-sm' : 'hover:bg-primary/10'}`}
-                    onClick={() => setUploadPath('gallery/')}
-                  >
-                    gallery/ (Main)
-                  </Badge>
-                  {albumSuggestions.map(album => (
-                    <Badge
-                      key={album}
-                      variant="outline"
-                      className={`cursor-pointer text-[10px] font-black py-1 px-2.5 rounded-lg transition-all ${uploadPath === `gallery/${album}/` ? 'bg-primary border-primary text-primary-foreground shadow-sm' : 'border-primary/20 text-primary hover:bg-primary/10'}`}
-                      onClick={() => setUploadPath(`gallery/${album}/`)}
-                    >
-                      {album}
-                    </Badge>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="flex items-center space-x-2 bg-primary/5 p-3 rounded-xl border border-primary/10">
-              <Checkbox
-                id="auto-adopt-upload"
-                checked={autoAdoptUpload}
-                onCheckedChange={(checked) => setAutoAdoptUpload(!!checked)}
-                className="border-primary/40 data-[state=checked]:bg-primary"
-              />
-              <div className="grid gap-1.5 leading-none">
-                <Label
-                  htmlFor="auto-adopt-upload"
-                  className="text-[10px] font-black uppercase tracking-wider text-primary cursor-pointer"
-                >
-                  Publish Directly to Public Gallery
-                </Label>
-                <p className="text-[9px] text-muted-foreground font-medium">
-                  Automatically list uploaded artwork in your live shop and portfolio.
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Drag & Drop Zone Right */}
-          <div className="lg:col-span-2 space-y-4">
-            <div
-              onDragEnter={handleDrag}
-              onDragOver={handleDrag}
-              onDragLeave={handleDrag}
-              onDrop={handleDrop}
-              className={`border-2 border-dashed rounded-2xl p-6 text-center transition-all cursor-pointer relative ${
-                dragActive
-                  ? 'border-primary bg-primary/10 scale-[0.99]'
-                  : 'border-primary/20 hover:border-primary/40 bg-primary/5 hover:bg-primary/10'
-              }`}
-              onClick={() => document.getElementById('file-upload-input')?.click()}
-            >
-              <input
-                id="file-upload-input"
-                type="file"
-                multiple
-                className="hidden"
-                onChange={handleFileChange}
-                accept="image/*"
-              />
-              <div className="flex flex-col items-center justify-center space-y-2 py-4">
-                <div className="bg-primary/10 p-3 rounded-full border border-primary/20 text-primary animate-pulse">
-                  <Upload className="h-6 w-6" />
-                </div>
-                <div>
-                  <p className="text-xs font-black uppercase tracking-wider text-primary">
-                    Drag & Drop your images here
-                  </p>
-                  <p className="text-[10px] text-muted-foreground font-bold uppercase mt-1">
-                    Or click to browse files
-                  </p>
-                </div>
-                <p className="text-[9px] text-muted-foreground font-medium">Supports JPG, PNG, WEBP, GIF (Max 10MB per file)</p>
-              </div>
-            </div>
-
-            {uploadFiles.length > 0 && (
-              <div className="bg-primary/5 rounded-xl border border-primary/10 p-4 space-y-3">
-                <div className="flex justify-between items-center border-b border-primary/10 pb-2">
-                  <span className="text-[10px] font-black uppercase tracking-wider text-primary">
-                    Upload Queue ({uploadFiles.length} files)
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="h-6 text-[9px] font-black uppercase text-destructive hover:bg-destructive/10"
-                    onClick={() => {
-                      setUploadFiles([]);
-                      setDisplayNames({});
-                    }}
-                  >
-                    Clear Queue
-                  </Button>
-                </div>
-                <div className="max-h-60 overflow-y-auto space-y-3 pr-2 custom-scrollbar">
-                  {uploadFiles.map((file, idx) => (
-                    <div key={idx} className="flex flex-col gap-2 bg-background p-3 rounded-lg border border-primary/10 text-xs shadow-sm">
-                      <div className="flex justify-between items-center min-w-0">
-                        <div className="flex items-center space-x-2 min-w-0">
-                          <ImageIcon className="h-4 w-4 shrink-0 text-primary/40" />
-                          <span className="truncate font-bold text-[11px] text-primary" title={file.name}>{file.name}</span>
-                          <span className="text-[9px] text-muted-foreground font-semibold shrink-0">
-                            ({(file.size / 1024 / 1024).toFixed(2)} MB)
-                          </span>
-                        </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="icon"
-                          className="h-6 w-6 text-destructive hover:bg-destructive/10 shrink-0"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            removeQueuedFile(idx);
-                          }}
-                        >
-                          <X className="h-3.5 w-3.5" />
-                        </Button>
-                      </div>
-                      
-                      <div className="flex items-center gap-2 border-t border-primary/5 pt-2">
-                        <Label htmlFor={`displayName-${idx}`} className="text-[10px] font-black uppercase text-primary/70 tracking-wider shrink-0 w-24">Display Title:</Label>
-                        <Input
-                          id={`displayName-${idx}`}
-                          value={displayNames[file.name] || ''}
-                          onChange={(e) => {
-                            setDisplayNames(prev => ({
-                              ...prev,
-                              [file.name]: e.target.value
-                            }));
-                          }}
-                          placeholder="Friendly Display Title / Name"
-                          className="h-8 text-[11px] font-semibold bg-background"
-                        />
-                      </div>
-                    </div>
-                  ))}
-                </div>
-                <div className="flex justify-end pt-2">
-                  <Button
-                    onClick={handleUpload}
-                    disabled={uploading}
-                    className="bg-primary hover:bg-primary/90 text-primary-foreground font-black text-xs uppercase px-6 h-9 shadow-lg shadow-primary/20"
-                  >
-                    {uploading ? (
-                      <>
-                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                        Uploading Assets...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="h-4 w-4 mr-2" />
-                        Start Upload ({uploadFiles.length} Files)
-                      </>
-                    )}
-                  </Button>
-                </div>
-              </div>
-            )}
-          </div>
+        <div className="w-full">
+          <UploadZone 
+            albumSuggestions={albumSuggestions}
+            layout="grid"
+            onUploadComplete={() => {
+                fetchFiles(true);
+                if (onRefresh) onRefresh();
+            }}
+          />
         </div>
       </div>
-
+      
       {selectedFiles.size > 0 && (
          <div className="sticky top-4 z-50 animate-in fade-in zoom-in slide-in-from-top-4">
             <div className="bg-primary text-primary-foreground p-3 rounded-2xl shadow-2xl flex flex-col md:flex-row items-center justify-between gap-4 border border-white/20">

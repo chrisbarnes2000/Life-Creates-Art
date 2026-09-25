@@ -4,7 +4,7 @@ import { bucket } from '@/lib/firebase-admin';
 export async function GET() {
   try {
     const [files] = await bucket.getFiles();
-    const filePaths = files.map(file => file.name);
+    const filePaths = files.map((file: { name: string }) => file.name);
     return NextResponse.json({ 
       files: filePaths,
       bucketName: bucket.name 

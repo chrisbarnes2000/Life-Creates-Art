@@ -274,7 +274,7 @@ function ChromiumSafeVideoPlayer({ src, className, onError }: ChromiumSafeVideoP
       }
 
       const mimeType = response.headers.get('Content-Type') || 'video/mp4';
-      const blob = new Blob(chunks, { type: mimeType });
+      const blob = new Blob(chunks as BlobPart[], { type: mimeType });
       const url = URL.createObjectURL(blob);
       localUrlRef.current = url;
       setLocalUrl(url);
@@ -413,7 +413,7 @@ export function PhotoGallery() {
 
   // Combine Firestore items with demo data as a fallback if Firestore is empty
   const displayItems = React.useMemo(() => {
-    const items = (firestoreItems && firestoreItems.length > 0) 
+    const items: GalleryItem[] = (firestoreItems && firestoreItems.length > 0) 
       ? firestoreItems 
       : demoData.fallbackGallery;
     

@@ -83,11 +83,19 @@ All code generated, refactored, or reviewed must adhere strictly to the NASA Jet
    - Track and compare versions across `package.json`, `Docs/CHANGELOG_DEV.md`, and `Docs/CHANGELOG.md`.
    - If `CHANGELOG_DEV.md` accumulates multiple iterations or internal versions ahead of `CHANGELOG.md`, the Agent **must proactively suggest a version promotion**:
      *"Recommendation: CHANGELOG_DEV.md contains [N] unreleased engineering updates ahead of public CHANGELOG.md (vX.Y.Z). Would you like to promote these into a public milestone release [vX.Y.W] in Docs/CHANGELOG.md and bump package.json?"*
-4. **Social & LinkedIn Broadcast & Feedback Suggestions**:
+4. **Trunk Branching & External GitHub Save Protocol**:
+   - **Trunk-Based Branching Naming**:
+     - Main Branch: `main` (the single source of truth; kept always deployable and green).
+     - Short-Lived Working Branches: `<type>/<short-description>` where `<type>` is `feat`, `fix`, `refactor`, `chore`, `docs`, or `test` (e.g. `feat/3d-hover-card`, `fix/contact-drawer-focus`, `refactor/csv-parser-bounds`).
+     - Conventional Commit Tags: `feat:`, `fix:`, `refactor:`, `test:`, `docs:`, `chore:`.
+   - **External GitHub Sync Reminder**:
+     - At every session reset prompt or major milestone cut, the Agent **must proactively remind the user to push to GitHub**:
+       *"Reminder: Please run `git add . && git commit -m '<type>(<scope>): <summary>' && git push origin main` to ensure your progress is backed up externally."*
+5. **Social & LinkedIn Broadcast & Feedback Suggestions**:
    - Following public milestone cuts or significant feature deliverables, **proactively provide recommended LinkedIn, X/Twitter, and Discord social copy** to announce changes and solicit user feedback.
    - Align social copy with marketing goals in `/Docs/INDEX_MARKETING.md`, emphasizing trust topology, neurodivergent-friendly connection strategies, and mathematical rapport.
    - Reference telemetry tags and conversion channels (Google Tag / GTG, Firebase Analytics, Vemetric, FeedHive) when advising distribution.
-5. **Other Documentation Updates**:
+6. **Other Documentation Updates**:
    - Update `STRUCTURE.md` when files are created, moved, or deleted.
    - Update `README.md` when public architecture or setup changes.
    - Update `INDEX_ROADMAP.md`, `INDEX_AUDIT.md`, or `INDEX_MARKETING.md` whenever system pillars, audits, or marketing strategies are touched.
@@ -121,9 +129,34 @@ All user interfaces, interactive components, forms, modals, and graphical visual
 
 ---
 
+## TOKEN & CONTEXT WINDOW ECONOMY PROTOCOL
+
+To eliminate context bloat, prevent Rate-Limit/TPM exhaustion, and optimize conversational efficiency, the Agent must adhere to strict Token Economy rules:
+
+1. **Session Reset Recommendation Protocol (Turn & Depth Thresholds)**:
+   - The Agent must track conversational depth and turn counts across active work sessions.
+   - When a chat session reaches **15–20 turns** OR upon the completion of a major milestone/refactor cut, the Agent **must proactively recommend starting a fresh chat session**:
+     *"Recommendation: This session has accumulated [N] turns with substantial context history. All architectural state, code changes, unit tests, and changelog records are strictly persisted to disk in `/Docs/` and `/src/`. To keep token consumption optimal and prevent model burst rate limits, would you like to start a fresh chat session for the next task?"*
+   - Because all project intelligence is comprehensively documented in `/Docs/README.md`, `/Docs/STRUCTURE.md`, `/Docs/INDEX_ROADMAP.md`, `/Docs/INDEX_AUDIT.md`, and `/Docs/CHANGELOG_DEV.md`, any fresh session can immediately reconstitute full context in $<5,000$ tokens without carrying historical payload overhead.
+
+2. **Grep-First & Targeted Slicing Discipline**:
+   - **Grep Before Read**: Always use `grep -rn` or symbol lookups to isolate exact file locations before invoking `view_file`.
+   - **Bounded Range Slices**: `view_file` calls must ALWAYS specify explicit `StartLine` and `EndLine` ranges (maximum $\le 60\text{--}80$ lines per call). Never dump entire large files ($>100$ lines) into the context window.
+   - **Smart Read-Before-Write**: Never re-read files that are already provided in the system prompt context or files being created from scratch.
+
+3. **Batched File Writes (Deferred Verification)**:
+   - Perform all planned code edits across related files within a single execution sequence before triggering compilation, linting, or test runs.
+   - Avoid interleaving individual file writes with repetitive single-file build checks.
+
+4. **Targeted Test Execution**:
+   - When iterating on a specific feature or component, run targeted unit test suites (e.g. `npm test -- tests/unit/accessibility.test.tsx`) during development, and execute the full test suite (`npm test`) once at final change sign-off.
+
+---
+
 ## MAINTENANCE RULES
 
 - **Security first** - No secrets, robust data handling, no hardcoded credentials
+- **Token economy** - Proactively prompt session resets at 15–20 turns; strictly bound `view_file` calls to $\le 80$ lines
 - **Modularity** - Extract UI modules clearly into `/src/components/` and utility files (<60 lines per helper, <500 lines per component)
 - **File limits** - Keep components modular (<1000 lines). Propose refactor when exceeded
 - **Complexity** - >500 lines or >10 files → pause for roadmap updates in `/Docs/INDEX_ROADMAP.md`
@@ -145,3 +178,28 @@ When complexity >500 lines OR >10 files OR tech debt accumulated. Use format fro
 - Power of 10 compliance = non-negotiable code quality ceiling
 - Mandatory post-refactor protocol = always re-audit scorecards + add automated tests after every refactor
 - WCAG 2.1/2.2 AA Compliance = non-negotiable accessibility baseline for all UI components, forms, modals, and interactive surfaces
+- Token & Context Economy = prompt session resets at 15–20 turns and strictly enforce $\le 80$-line bounds on file views
+
+---
+
+## STANDARDIZED FRESH SESSION STARTER TEMPLATE
+
+Use this standardized prompt when launching a fresh chat session to immediately ground the Agent in the current codebase without carrying token overhead:
+
+```markdown
+### 🎯 Task Brief: [<type>(<scope>): <Title>]
+**Branch / Target**: `main` (or `<type>/<short-desc>`)
+**Relevant Docs**: `/Docs/INDEX_ROADMAP.md`, `/Docs/CHANGELOG_DEV.md`, `/Docs/STRUCTURE.md`
+**Primary Components**: `<path/to/component.tsx>`, `<path/to/module.ts>`
+
+#### 📋 Objectives:
+1. [Objective 1: What needs to be built/fixed]
+2. [Objective 2: Visual or interaction outcome]
+3. [Objective 3: Test and accessibility criteria]
+
+#### 🛡️ Operating Constraints:
+- Follow NASA JPL Power of 10 & WCAG 2.1 AA rules.
+- Bound file views to <= 80 lines with grep lookups.
+- Propose 2-3 architectural approaches before implementing.
+```
+

@@ -18,8 +18,3 @@ To start the local development server:
 npm run dev
 ```
 
-For AI flow development:
-```bash
-npm run genkit:dev
-```
-

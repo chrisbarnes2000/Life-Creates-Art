@@ -4,6 +4,75 @@ This file records granular, high-frequency technical iterations, code-level chan
 
 ---
 
+## [0.2.22-dev] - 2026-09-24
+### Refactored (Dynamic Quick Upload & Admin Layout Optimization)
+- **Swapped `QuickUploadForm` with `UploadZone`**:
+  - Replaced the legacy/mock `QuickUploadForm` in `FloatingUploadButton` with the fully featured `UploadZone` component for authentic, client-side compressed HEIC-ready file uploads.
+  - Implemented automatic self-contained album fetching within `UploadZone` from the Firebase Firestore `gallery` collection if no parent-level suggestions are passed.
+- **Admin Side-by-Side Uploader Layout**:
+  - Enhanced `UploadZone` to support a responsive `layout?: 'grid' | 'stack'` prop.
+  - Set `layout="grid"` inside `StorageManager` (Admin Portal) to spread the "Settings & Configuration" and "Drag & Drop Area" side-by-side using a clean 3-column responsive grid (`lg:col-span-1` vs `lg:col-span-2`), keeping columns beautifully aligned.
+  - Kept `layout="stack"` inside the Dialog of `FloatingUploadButton` to automatically stack vertically for clean viewport responsiveness.
+- **Cleanup**:
+  - Deleted obsolete and unused `/src/components/quick-upload-form.tsx` component.
+
+---
+
+## [0.2.21-dev] - 2026-09-24
+### Refactored (Modularization: StorageManager)
+- **Decomposed `StorageManager`**:
+  - Created `/src/components/storage/` directory for modular components.
+  - Extracted upload logic into a new component `UploadZone`.
+  - Updated `StorageManager` to utilize `UploadZone`, reducing component complexity and improving maintainability.
+
+---
+
+## [0.2.20-dev] - 2026-09-24
+### Fixed (Tech Debt: BlobPart Incompatibility)
+- **Resolved Blob/Uint8Array Type Incompatibilities**:
+  - `src/components/storage-manager.tsx`: Explicitly cast buffers to `BlobPart` before `File` construction.
+  - `src/components/photo-gallery.tsx`: Cast `chunks` to `BlobPart[]` in `ChromiumSafeVideoPlayer` to fix streaming blob construction in Chromium environments.
+
+### Added (Enhanced Upload UX)
+- **Enhanced `QuickUploadForm`**:
+  - Implemented Drag-and-Drop file support using `onDragEnter`, `onDragOver`, `onDragLeave`, `onDrop` handlers.
+  - Added "Price" field to the upload form and Zod validation schema.
+
+---
+
+## [0.2.19-dev] - 2026-09-24
+### Removed (Legacy AI Cleanup)
+- **Pruned Legacy AI Features**:
+  - Deleted `/GEMINI.md`.
+  - Removed weather-resilient shed design assistant feature:
+    - Deleted `/src/ai/` directory and contents (`dev.ts`, `genkit.ts`, `flows/`).
+    - Deleted `/src/components/weather-assistant.tsx`.
+- **Documentation Cleanup**:
+  - Cleaned up AI-related references in `/README.md` and `/Docs/STRUCTURE.md`.
+
+---
+
+## [0.2.18-dev] - 2026-09-24
+### Added (Safety & Governance Audit)
+- **NASA Power of 10 Audit Framework**:
+  - Created `/Docs/NASAAudits/` subdirectory.
+  - Initialized `/Docs/NASAAudits/AUDIT_SUMMARY_SCORECARD.md` as a baseline safety-critical compliance matrix.
+  - Initialized `/Docs/NASAAudits/TECH_DEBT_REPORT.md` to track dependency mismatches and build-breaking type errors.
+- **Roadmap Integration**: Linked audit reports into `/Docs/INDEX_ROADMAP.md`.
+
+---
+
+## [0.2.17-dev] - 2026-09-24
+### Added (Quick Upload UX)
+- **Floating Action Button (`FloatingUploadButton.tsx`)**:
+  - Implemented a persistent, floating action button on the home page for authorized gallery management.
+  - Trigger: `Dialog` modal (`shadcn/ui` / `@radix-ui/react-dialog`) for efficient, non-context-switching uploads.
+  - Form: `QuickUploadForm` using `react-hook-form` and `zod` for strict schema validation against `GalleryItem` blueprint entity.
+- **Dependency Audit**:
+  - Registered "Technical Debt: Dependency audit and pruning" in `/Docs/INDEX_ROADMAP.md` as requested.
+
+---
+
 ## [0.2.16-dev] - 2026-09-24
 ### Fixed & Modernized (Brand Icon & Favicon Suite Overhaul & Rasterization Hotfix)
 - **Eliminated Dual Light/Dark Split Artifacts & Headless Rasterization Fix**:

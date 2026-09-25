@@ -22,6 +22,7 @@ export type GalleryItem = {
   subAlbum?: string;
   uploadDate?: any;
   hidden?: boolean;
+  storagePath?: string;
 };
 
 export type GoogleAlbum = {

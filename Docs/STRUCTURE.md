@@ -5,7 +5,7 @@ LifeCreatesArt is a professional fine art portfolio, gallery management, and cre
 
 ## Core Directories
 - `/src/app`: Next.js App Router pages and API routes.
-- `/src/components`: UI components, including the Photo Gallery, Testimonials, and About Us.
+- `/src/components`: UI components, including the Photo Gallery, Testimonials, About Us, and the `FloatingUploadButton` with the modular `UploadZone` for quick gallery management.
 - `/src/firebase`: Firebase configuration, providers, and custom hooks for Firestore.
 - `/src/lib`: Shared types, utility functions, and demo data.
 - `/public`: Static web assets, theme-adaptive vector favicon (`icon.svg`), PWA manifests, and multi-resolution brand icons (`icon.png`, `icon-192.png`, `apple-icon.png`, `favicon.ico`, `opengraph-image.png`).
@@ -23,5 +23,4 @@ LifeCreatesArt is a professional fine art portfolio, gallery management, and cre
 - **Framework**: Next.js 15 (App Router)
 - **Styling**: Tailwind CSS + shadcn/ui
 - **Database/Auth**: Firebase (Firestore, Auth, Storage)
-- **AI**: Google Genkit + Gemini
 - **Animations**: Framer Motion
