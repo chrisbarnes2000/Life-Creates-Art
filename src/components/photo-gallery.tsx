@@ -1130,7 +1130,7 @@ export function PhotoGallery() {
                         <div className="flex items-center justify-between gap-3 mt-4 pt-3 border-t border-zinc-100 dark:border-zinc-800">
                           <div className="min-w-0">
                             {img.price ? (
-                              <span className="bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 px-2 py-1 rounded text-xs font-black tracking-wide border border-emerald-200/50 dark:border-emerald-900/50 inline-block">
+                              <span className="bg-accent/10 dark:bg-accent/20 text-accent font-black px-2.5 py-1 rounded-lg text-xs tracking-wide border border-accent/20 inline-block">
                                 ${img.price}
                               </span>
                             ) : (

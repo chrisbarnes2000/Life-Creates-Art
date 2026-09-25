@@ -4,108 +4,126 @@
 
 @layer base {
   :root {
-    /* Warm PNW Theme: Forest, Wood, and Sunset */
-    --background: 30 20% 98%;
-    --foreground: 20 10% 10%;
+    /* Warm Regal Purple & Sunset Gold Theme */
+    --background: 270 20% 98%; /* Soft lilac-tinted white background for a premium feel */
+    --foreground: 270 10% 10%;
     
-    --card: 30 20% 98%; /* Match background almond for a softer feel */
-    --card-foreground: 20 10% 10%;
+    --card: 270 20% 98%;
+    --card-foreground: 270 10% 10%;
     
-    --popover: 30 20% 98%;
-    --popover-foreground: 20 10% 10%;
+    --popover: 270 20% 98%;
+    --popover-foreground: 270 10% 10%;
     
-    --primary: 154 35% 20%; /* Dark Forest Green */
-    --primary-foreground: 30 20% 98%;
+    --primary: 270 50% 25%; /* Deep Royal Purple */
+    --primary-foreground: 270 20% 98%;
     
-    --secondary: 35 25% 92%; /* Soft Almond */
-    --secondary-foreground: 154 35% 20%;
+    --secondary: 270 30% 95%; /* Soft Lavender */
+    --secondary-foreground: 270 50% 25%;
     
-    --muted: 35 15% 90%;
-    --muted-foreground: 20 10% 25%;
+    --muted: 270 15% 91%;
+    --muted-foreground: 270 10% 35%;
     
-    --accent: 32 95% 44%; /* Deepened Golden Amber */
-    --accent-foreground: 30 20% 98%;
+    --accent: 45 100% 42%; /* Majestic Sunset Gold */
+    --accent-foreground: 270 20% 98%;
     
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
     
-    --border: 35 20% 85%;
-    --input: 35 20% 85%;
-    --ring: 154 35% 20%;
+    --border: 270 20% 88%;
+    --input: 270 20% 88%;
+    --ring: 270 50% 25%;
     
     --radius: 0.75rem;
   }
 
   [data-theme='dark-green'] {
-    --primary: 154 35% 20%;
-    --primary-foreground: 30 20% 98%;
+    /* Royal Purple & Gold profile (matches default) */
+    --primary: 270 50% 25%;
+    --primary-foreground: 270 20% 98%;
+    --accent: 45 100% 42%;
+    --ring: 270 50% 25%;
   }
 
   [data-theme='mint-green'] {
-    --primary: 160 84% 39%; /* Mint Green */
-    --primary-foreground: 160 84% 5%;
+    /* Orchid & Honey Gold profile */
+    --primary: 300 45% 35%; /* Orchid Purple */
+    --primary-foreground: 270 20% 98%;
+    --accent: 40 95% 45%; /* Honey Gold */
+    --ring: 300 45% 35%;
   }
 
   [data-theme='lime-green'] {
-    --primary: 75 100% 40%; /* Lime Green */
-    --primary-foreground: 75 100% 5%; /* Dark for contrast */
-    --accent: 32 95% 44%;
+    /* Lavender & Rose Gold profile */
+    --primary: 255 55% 40%; /* Lavender Purple */
+    --primary-foreground: 270 20% 98%;
+    --accent: 20 85% 60%; /* Rose Gold */
+    --ring: 255 55% 40%;
   }
 
   .dark {
-    --background: 20 10% 5%;
-    --foreground: 30 20% 98%;
+    --background: 270 30% 5%; /* Dark Royal Purple tint */
+    --foreground: 270 20% 98%;
     
-    --card: 20 10% 8%;
-    --card-foreground: 30 20% 98%;
+    --card: 270 25% 8%;
+    --card-foreground: 270 20% 98%;
     
-    --popover: 20 10% 8%;
-    --popover-foreground: 30 20% 98%;
+    --popover: 270 25% 8%;
+    --popover-foreground: 270 20% 98%;
     
-    --primary: 154 35% 75%; /* Much lighter green in dark mode for accessibility as text */
-    --primary-foreground: 20 10% 5%;
+    --primary: 270 60% 75%; /* Soft accessible Lavender text */
+    --primary-foreground: 270 30% 5%;
     
-    --secondary: 154 35% 20%;
-    --secondary-foreground: 30 20% 98%;
+    --secondary: 270 40% 16%;
+    --secondary-foreground: 270 20% 98%;
     
-    --muted: 154 35% 20%;
-    --muted-foreground: 154 10% 80%;
+    --muted: 270 40% 16%;
+    --muted-foreground: 270 10% 80%;
     
-    --accent: 38 92% 50%;
-    --accent-foreground: 20 10% 5%;
+    --accent: 45 100% 50%; /* Radiant Sunset Gold */
+    --accent-foreground: 270 30% 5%;
     
     --destructive: 0 62.8% 30.6%;
-    --destructive-foreground: 30 20% 98%;
+    --destructive-foreground: 270 20% 98%;
     
-    --border: 154 35% 20%;
-    --input: 154 35% 20%;
-    --ring: 38 92% 50%;
+    --border: 270 30% 16%;
+    --input: 270 30% 16%;
+    --ring: 45 100% 50%;
   }
 
   [data-theme='dark-green'].dark {
-    --primary: 154 45% 40%;
-    --primary-foreground: 30 20% 98%;
-    --background: 154 35% 5%;
-    --card: 154 35% 8%;
-    --card-foreground: 30 20% 98%;
-    --border: 154 35% 15%;
-    --ring: 154 45% 40%;
-    --accent: 32 95% 44%;
-    --accent-foreground: 30 20% 98%;
+    --primary: 270 60% 75%;
+    --primary-foreground: 270 30% 5%;
+    --background: 270 30% 5%;
+    --card: 270 25% 8%;
+    --card-foreground: 270 20% 98%;
+    --border: 270 30% 14%;
+    --ring: 270 60% 75%;
+    --accent: 45 100% 50%;
+    --accent-foreground: 270 30% 5%;
   }
 
   [data-theme='mint-green'].dark {
-    --primary: 160 84% 60%;
-    --ring: 160 84% 60%;
-    --accent: 38 92% 50%;
+    --primary: 300 60% 70%;
+    --primary-foreground: 300 50% 5%;
+    --background: 300 35% 5%;
+    --card: 300 25% 8%;
+    --card-foreground: 270 20% 98%;
+    --border: 300 25% 14%;
+    --ring: 300 60% 70%;
+    --accent: 40 95% 55%;
+    --accent-foreground: 300 50% 5%;
   }
 
   [data-theme='lime-green'].dark {
-    --primary: 75 90% 60%;
-    --primary-foreground: 20 10% 5%;
-    --background: 75 50% 5%;
-    --card: 75 50% 8%;
-    --accent: 32 95% 44%;
+    --primary: 255 70% 75%;
+    --primary-foreground: 255 50% 5%;
+    --background: 255 35% 5%;
+    --card: 255 25% 8%;
+    --card-foreground: 270 20% 98%;
+    --border: 255 25% 14%;
+    --ring: 255 70% 75%;
+    --accent: 20 85% 65%;
+    --accent-foreground: 255 50% 5%;
   }
 }
 

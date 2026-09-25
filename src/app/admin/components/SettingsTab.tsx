@@ -110,16 +110,16 @@ export function SettingsTab({
         </CardContent>
       </Card>
 
-      <Card className="border-t-8 border-t-emerald-900 shadow-xl">
+      <Card className="border-t-8 border-t-primary shadow-xl">
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-6 w-6 text-emerald-600" />
+            <TrendingUp className="h-6 w-6 text-primary" />
             Partner & Affiliate Systems
           </CardTitle>
           <CardDescription>Control the architecture and visibility of the partnership network.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="flex items-center justify-between p-4 rounded-2xl bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100">
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-primary/5 border border-primary/10">
              <div className="space-y-1">
                 <Label className="text-base font-black uppercase tracking-tight">Affiliate Program Status</Label>
                 <p className="text-[10px] font-bold text-muted-foreground uppercase">Enable the coming soon landing page and navigation entries</p>
@@ -127,15 +127,15 @@ export function SettingsTab({
              <Switch 
                checked={affiliateEnabled} 
                onCheckedChange={setAffiliateEnabled}
-               className="data-[state=checked]:bg-emerald-600"
+               className="data-[state=checked]:bg-primary"
              />
           </div>
           
           {affiliateEnabled && (
-             <div className="p-4 rounded-xl border border-dashed border-emerald-300 bg-emerald-50/20 flex items-center gap-4 animate-in fade-in slide-in-from-right-4">
+             <div className="p-4 rounded-xl border border-dashed border-accent/30 bg-accent/5 flex items-center gap-4 animate-in fade-in slide-in-from-right-4">
                 <AlertTriangle className="h-5 w-5 text-amber-500" />
-                <p className="text-xs font-medium text-emerald-900 dark:text-emerald-100 italic">
-                   System integrated. The <span className="font-black uppercase tracking-widest text-[10px] bg-emerald-900 text-white px-2 py-0.5 rounded">/affiliate</span> endpoint is now public.
+                <p className="text-xs font-medium text-foreground italic">
+                   System integrated. The <span className="font-black uppercase tracking-widest text-[10px] bg-accent text-accent-foreground px-2 py-0.5 rounded">/affiliate</span> endpoint is now public.
                 </p>
              </div>
           )}

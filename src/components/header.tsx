@@ -169,12 +169,12 @@ export function Header() {
                 <DropdownMenuPortal>
                   <DropdownMenuSubContent>
                     <DropdownMenuItem onClick={() => setCustomTheme('dark-green')}>
-                      <div className="w-3 h-3 rounded-full bg-[#1b4332] mr-2 border border-white/20" />
-                      <span className={customTheme === 'dark-green' ? 'font-black' : ''}>PNW Forest Green</span>
+                      <div className="w-3 h-3 rounded-full bg-[#581c87] mr-2 border border-[#fbbf24]" />
+                      <span className={customTheme === 'dark-green' ? 'font-black' : ''}>Royal Purple & Gold</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setCustomTheme('mint-green')}>
-                      <div className="w-3 h-3 rounded-full bg-[#52b788] mr-2 border border-emerald-400" />
-                      <span className={customTheme === 'mint-green' ? 'font-black' : ''}>Spring Mint Green</span>
+                      <div className="w-3 h-3 rounded-full bg-[#86198f] mr-2 border border-[#fbbf24]" />
+                      <span className={customTheme === 'mint-green' ? 'font-black' : ''}>Orchid & Honey Gold</span>
                     </DropdownMenuItem>
                   </DropdownMenuSubContent>
                 </DropdownMenuPortal>

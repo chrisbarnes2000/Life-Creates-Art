@@ -96,7 +96,7 @@ export function GalleryTab({
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <CardTitle className="text-primary font-black text-3xl tracking-tight">Main Project Archive & Media Manager</CardTitle>
-                <Badge className="bg-emerald-500 text-white font-black text-[10px] uppercase tracking-wider px-2.5 py-0.5 shadow-sm">
+                <Badge className="bg-accent text-accent-foreground font-black text-[10px] uppercase tracking-wider px-2.5 py-0.5 shadow-sm">
                   Priority Workspace
                 </Badge>
               </div>
@@ -130,7 +130,7 @@ export function GalleryTab({
                     <div className="flex items-center gap-2 pl-2 border-l border-primary/20 ml-1">
                       <span className="text-[10px] font-black text-primary/60 uppercase">System Status:</span>
                       <div className="flex items-center gap-1.5">
-                        <Badge variant="outline" className="border-emerald-500/50 text-emerald-600 dark:text-emerald-400 font-bold h-7 px-3 rounded-lg text-[9px] uppercase tracking-tighter bg-emerald-50 dark:bg-emerald-950/30">
+                        <Badge variant="outline" className="border-accent/40 text-accent font-bold h-7 px-3 rounded-lg text-[9px] uppercase tracking-tighter bg-accent/5">
                           Active & Synced
                         </Badge>
                         <Badge className="bg-primary font-black px-3 h-7 rounded-lg shadow-md text-primary-foreground">
@@ -231,7 +231,7 @@ export function GalleryTab({
                   </div>
                 </div>
               ))}
-                    <div className="flex flex-wrap gap-4 pt-4 border-t border-emerald-200/50">
+                    <div className="flex flex-wrap gap-4 pt-4 border-t border-primary/20">
                 <Button variant="outline" className="border-primary/30 text-primary hover:bg-primary/10 font-bold" onClick={() => setGoogleAlbumConfig([...googleAlbumConfig, { id: `gphoto-${Date.now()}`, name: '', url: '', memoryUrl: '', coverImage: '', price: '' }])}>
                    <Plus className="mr-2 h-4 w-4"/> New Album Connection
                 </Button>

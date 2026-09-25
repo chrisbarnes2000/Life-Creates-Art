@@ -684,7 +684,7 @@ export function StorageManager({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge className="text-[10px] font-black uppercase tracking-wider bg-emerald-500 text-white px-3 py-1 shadow-sm">
+            <Badge className="text-[10px] font-black uppercase tracking-wider bg-accent text-accent-foreground px-3 py-1 shadow-sm">
               iPhone HEIC Ready
             </Badge>
             <Badge variant="outline" className="text-[10px] font-black uppercase tracking-tight border-primary/30 bg-primary/5 text-primary px-3 py-1">
@@ -1119,7 +1119,7 @@ export function StorageManager({
                                       <Badge 
                                         key={sub} 
                                         variant="outline" 
-                                        className={`cursor-pointer text-[8px] font-bold ${metaSubAlbum === sub ? 'bg-emerald-600 text-white border-emerald-600' : 'border-primary/20 text-primary/60 hover:bg-primary/10'}`}
+                                        className={`cursor-pointer text-[8px] font-bold ${metaSubAlbum === sub ? 'bg-primary text-primary-foreground border-primary' : 'border-primary/20 text-primary/60 hover:bg-primary/10'}`}
                                         onClick={() => setMetaSubAlbum(sub)}
                                       >
                                         {sub}

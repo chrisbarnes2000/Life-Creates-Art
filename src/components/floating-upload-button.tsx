@@ -12,9 +12,26 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 import { UploadZone } from '@/components/storage/upload-zone';
+import { useUser } from '@/firebase';
+
+const ALLOWED_ADMINS = ['chris.barnes.2000@me.com', 'lifecreatesart@yahoo.com'];
 
 export function FloatingUploadButton() {
+  const { user, isUserLoading } = useUser();
   const [open, setOpen] = React.useState(false);
+
+  // If loading or no user, hide the floating upload button
+  if (isUserLoading || !user || user.isAnonymous) {
+    return null;
+  }
+
+  const userEmail = user.email?.toLowerCase() || '';
+  const isAuthorizedAdmin = ALLOWED_ADMINS.includes(userEmail);
+
+  // If not an authorized admin, hide the floating upload button completely
+  if (!isAuthorizedAdmin) {
+    return null;
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>

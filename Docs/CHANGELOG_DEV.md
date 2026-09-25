@@ -4,6 +4,28 @@ This file records granular, high-frequency technical iterations, code-level chan
 
 ---
 
+## [0.2.24-dev] - 2026-09-24
+### Refactored (Footer Contrast & Color Harmony Adjustment)
+- **Harmonized Footer Background**:
+  - Replaced the high-contrast, stark solid dark background (`bg-primary`) in `src/components/footer.tsx` with a luxurious, low-contrast, and highly cohesive theme-adaptive color backdrop (`bg-secondary/30 dark:bg-black/40` and a `border-t border-primary/10` partition).
+  - This softens the color transition from the main body content, creating a seamless and premium transition.
+- **Overhauled Footer Typography and Hierarchy**:
+  - Migrated hardcoded contrast-breaking `text-primary-foreground` styles into cohesive, beautiful `text-primary` (for headers) and `text-muted-foreground/85` (for bodies/links) standard tokens.
+  - Retained deep royal brand highlights using the `Palette` branding icon and soft top gradient border lines.
+
+---
+
+## [0.2.23-dev] - 2026-09-24
+### Refactored (Branding Overhaul to Purple & Gold & Access Control Hardening)
+- **Hardened Floating Quick Upload Button Access**:
+  - Restricted `<FloatingUploadButton />` to render ONLY for authenticated, authorized admin emails (`chris.barnes.2000@me.com` and `lifecreatesart@yahoo.com`), perfectly aligning client-side permissions with the backend's `ALLOWED_ADMINS` list.
+- **Vibrant Purple & Gold Branding Overhaul**:
+  - Completely replaced all green tints (dark-green, mint-green, lime-green, emerald, and forest green) in CSS variables inside `/src/app/globals.css` with a luxurious, majestic, and high-accessibility Royal Purple and Sunset Gold palette.
+  - Retained backward-compatible theme selectors under the hood while updating display names in the header custom theme dropdown to "Royal Purple & Gold" and "Orchid & Honey Gold", along with matching CSS preview colors.
+  - Updated hardcoded green elements in `SettingsTab.tsx`, `GalleryTab.tsx`, `storage-manager.tsx`, and `photo-gallery.tsx` price tags to use primary Purple and accent Gold theme tokens.
+
+---
+
 ## [0.2.22-dev] - 2026-09-24
 ### Refactored (Dynamic Quick Upload & Admin Layout Optimization)
 - **Swapped `QuickUploadForm` with `UploadZone`**:
